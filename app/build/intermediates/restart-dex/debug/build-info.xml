@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<instant-run
+    abi="x86"
+    api-level="26"
+    density="420dpi"
+    format="8"
+    plugin-version="2.2.3"
+    timestamp="1705523706968"
+    token="6413283559695540091"
+    verifier="FULL_BUILD_REQUESTED" >
+
+    <task
+        name="javac"
+        duration="240" />
+    <task
+        name="instant-run-dex"
+        duration="0" />
+    <task
+        name="instant-run-transform"
+        duration="126" />
+    <task
+        name="verifier"
+        duration="41" />
+
+    <artifact
+        location="/Users/alexandrubrisan/AndroidStudioProjects/Songle/app/build/outputs/apk/app-debug.apk"
+        type="MAIN" />
+
+    <build
+        timestamp="1705523706968"
+        verifier="FULL_BUILD_REQUESTED" >
+        <artifact
+            location="/Users/alexandrubrisan/AndroidStudioProjects/Songle/app/build/outputs/apk/app-debug.apk"
+            type="MAIN" />
+    </build>
+
+</instant-run>

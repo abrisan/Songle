@@ -1,0 +1,7 @@
+#Wed Oct 11 12:44:55 BST 2017
+base.0=/Users/alexandrubrisan/AndroidStudioProjects/Songle/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_c674dba5c74a2f1b9e35a1c4fb25dc81c6da7013
+renamed.1=classes.dex
+renamed.0=classes2.dex
+file.1=/Users/alexandrubrisan/AndroidStudioProjects/Songle/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_971756efff764eb1a5e5160d4514e27c8c5f1aff/classes.dex
+base.1=/Users/alexandrubrisan/AndroidStudioProjects/Songle/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_971756efff764eb1a5e5160d4514e27c8c5f1aff
+file.0=/Users/alexandrubrisan/AndroidStudioProjects/Songle/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_c674dba5c74a2f1b9e35a1c4fb25dc81c6da7013/classes.dex
