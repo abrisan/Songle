@@ -17,7 +17,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/button"/>
+        android:id="@+id/button"
+        android:onClick="settingsClicked"/>
 
     <Button
         android:text="@string/wordlist_button"
@@ -25,7 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/button"
         android:layout_alignParentEnd="true"
-        android:id="@+id/button2"/>
+        android:id="@+id/button2"
+        android:onClick="wordlistClicked"/>
 
     <Button
         android:text="@string/play_button"
@@ -33,7 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/button3"/>
+        android:id="@+id/button3"
+        android:onClick="playClicked"/>
 
     <Button
         android:text="@string/guessed_button"
@@ -41,5 +44,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/button4"/>
+        android:id="@+id/button4"
+        android:onClick="guessedClicked"/>
 </RelativeLayout>
