@@ -53,7 +53,7 @@ public class WordlistCardInformation
 
     public boolean addGuessedWord(String word)
     {
-        return this . found_words_in_category . contains(word) &&
+        return this . found_words_in_category . contains(word) ||
                 this . found_words_in_category . add(word);
     }
 
@@ -68,5 +68,27 @@ public class WordlistCardInformation
             ret . append('\n');
         }
         return ret . toString();
+    }
+
+    public String get_found_words_preview()
+    {
+        int number = Math.min(
+                4,
+                this . found_words_in_category . size()
+        );
+
+        StringBuilder ret = new StringBuilder();
+
+        for (int i = 0 ; i < number ; ++i)
+        {
+            ret . append(this . found_words_in_category . get(i));
+            ret . append('\n');
+        }
+        return ret . toString();
+    }
+
+    public String get_full_words()
+    {
+        return this . toString();
     }
 }
