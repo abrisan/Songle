@@ -1,5 +1,7 @@
 package tools;
 
+import java.util.List;
+
 public class DebugMessager
 {
     private static DebugMessager ourInstance = new DebugMessager();
@@ -15,12 +17,25 @@ public class DebugMessager
 
     private static void _print_with_title(final String title, final String message)
     {
-        System.out.printf("%s : %s\n", title, message);
+        System.out.printf("%s >>> %s\n", title, message);
     }
 
     public void info(final String info)
     {
         _print_with_title("Information", info);
+    }
+
+    public void debug_output(final List<? extends Object> info)
+    {
+        for (Object o : info)
+        {
+            _print_with_title("DEBUG OUTPUT", o.toString());
+        }
+    }
+
+    public void debug_output(Object object)
+    {
+        _print_with_title("DEBUG OUTPUT", object.toString());
     }
 
     public void warning(final String warning)
