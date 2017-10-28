@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import tools.DebugMessager;
+import tools.SongLyricsParser;
 
 public class MainActivity extends Activity
 {
@@ -20,6 +17,7 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SongLyricsParser.test();
     }
 
     public void settingsClicked(View view)
@@ -36,7 +34,8 @@ public class MainActivity extends Activity
 
     public void wordlistClicked(View view)
     {
-        console . info("wordlist clicked");
+        Intent move_to_wordlist = new Intent(this, WordlistActivity.class);
+        startActivity(move_to_wordlist);
     }
 
     public void guessedClicked(View view)

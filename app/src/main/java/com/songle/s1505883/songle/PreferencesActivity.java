@@ -3,6 +3,7 @@ package com.songle.s1505883.songle;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends Activity
@@ -21,6 +22,8 @@ public class PreferencesActivity extends Activity
         {
             e . printStackTrace();
         }
+
+        RecyclerView v = new RecyclerView(this);
     }
 
     @Override
