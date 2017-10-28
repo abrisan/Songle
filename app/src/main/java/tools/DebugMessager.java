@@ -1,6 +1,7 @@
 package tools;
 
 import java.util.List;
+import java.util.Set;
 
 public class DebugMessager
 {
@@ -28,6 +29,14 @@ public class DebugMessager
     public void debug_output(final List<? extends Object> info)
     {
         for (Object o : info)
+        {
+            _print_with_title("DEBUG OUTPUT", o.toString());
+        }
+    }
+
+    void debug_output(final Set<? extends Object> objects)
+    {
+        for (Object o : objects)
         {
             _print_with_title("DEBUG OUTPUT", o.toString());
         }

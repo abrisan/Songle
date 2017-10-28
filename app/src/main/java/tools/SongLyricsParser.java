@@ -1,6 +1,8 @@
 package tools;
 
 
+import android.os.Debug;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,8 @@ import java.util.Set;
 
 public class SongLyricsParser
 {
+    private static final DebugMessager console = DebugMessager.getInstance();
+
     public static class SongLyricsDescriptor
     {
         private List<List<String>> raw_lyrics;
@@ -58,6 +62,11 @@ public class SongLyricsParser
             }
         }
 
+        public Set<String> getWords()
+        {
+            return this . words;
+        }
+
 
         public String toString()
         {
@@ -81,7 +90,10 @@ public class SongLyricsParser
         SongLyricsDescriptor return_value = new SongLyricsDescriptor();
 
         int current_byte = lyricsFile.read();
+
         boolean multiple_whitespace = false;
+        boolean multiple_newline = false;
+
         StringBuilder word_builder = new StringBuilder();
 
 
@@ -93,24 +105,31 @@ public class SongLyricsParser
             {
                 case '\n':
                 {
-
+                    if (multiple_newline)
+                    {
+                        current_byte = lyricsFile . read();
+                        continue;
+                    }
                     if (word_builder.length() > 0)
                     {
-                        return_value . add_word(word_builder . toString());
+                        return_value . add_word(word_builder . toString() . toUpperCase());
                         word_builder . setLength(0);
+
                     }
                     return_value . newline();
+                    multiple_newline = true;
                     break;
                 }
                 case ' ':
                 {
                     if (multiple_whitespace)
                     {
+                        current_byte = lyricsFile . read();
                         continue;
                     }
                     else
                     {
-                        return_value . add_word(word_builder . toString());
+                        return_value . add_word(word_builder . toString() . toUpperCase());
                         word_builder.setLength(0);
                         multiple_whitespace = true;
                         break;
@@ -118,9 +137,20 @@ public class SongLyricsParser
                 }
                 default:
                 {
-                    multiple_whitespace = false;
-                    word_builder.append(byte_as_char);
-                    break;
+                    if (!Character.isLetter(byte_as_char))
+                    {
+                        multiple_newline = false;
+                        multiple_whitespace = false;
+                        current_byte = lyricsFile . read();
+                        continue;
+                    }
+                    else
+                    {
+                        multiple_newline = false;
+                        multiple_whitespace = false;
+                        word_builder . append(byte_as_char);
+                        break;
+                    }
                 }
 
             }
