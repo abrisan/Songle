@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.songle.s1505883.staticdata.StaticPlacemarks;
+
 import tools.DebugMessager;
 import tools.SongLyricsParser;
 
@@ -17,7 +19,6 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SongLyricsParser.test();
     }
 
     public void settingsClicked(View view)

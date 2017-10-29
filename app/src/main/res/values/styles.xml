@@ -1,8 +1,6 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Material"/>
-    <style name="MainTheme" parent="android:Theme.Material.NoActionBar" />
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar"/>
     <style name="SplashTheme" parent="android:Theme.Material.Dialog.NoActionBar" />
 
 </resources>

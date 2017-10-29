@@ -1,6 +1,9 @@
 package tools;
 
 
+import android.os.Debug;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +15,8 @@ import java.util.Set;
 
 public class SongLyricsParser
 {
+    private static final DebugMessager console = DebugMessager.getInstance();
+
     public static class SongLyricsDescriptor
     {
         private List<List<String>> raw_lyrics;
@@ -24,6 +29,8 @@ public class SongLyricsParser
             buffer = new ArrayList<>();
             words = new HashSet<>();
         }
+
+
 
         public void add_word(String word)
         {
@@ -50,12 +57,17 @@ public class SongLyricsParser
         {
             try
             {
-                return this . raw_lyrics . get(row) . get(word_number);
+                return this . raw_lyrics . get(row - 1) . get(word_number - 1);
             }
             catch (Exception e)
             {
                 return "NO SUCH INDEX";
             }
+        }
+
+        public Set<String> getWords()
+        {
+            return this . words;
         }
 
 
@@ -71,6 +83,19 @@ public class SongLyricsParser
             return ret . toString();
         }
 
+        public void debugList()
+        {
+            for (int i = 0 ; i < this . raw_lyrics . size() ; ++i)
+            {
+                console . info(
+                        String.format("%d : %s",
+                                i + 1,
+                                this . raw_lyrics . get(i) . toString()
+                        )
+                );
+            }
+        }
+
     }
 
 
@@ -81,9 +106,11 @@ public class SongLyricsParser
         SongLyricsDescriptor return_value = new SongLyricsDescriptor();
 
         int current_byte = lyricsFile.read();
-        boolean multiple_whitespace = false;
-        StringBuilder word_builder = new StringBuilder();
 
+        boolean multiple_whitespace = false;
+        boolean multiple_newline = false;
+
+        StringBuilder word_builder = new StringBuilder();
 
         while (current_byte != -1)
         {
@@ -93,34 +120,55 @@ public class SongLyricsParser
             {
                 case '\n':
                 {
-
+                    if (multiple_newline)
+                    {
+                        current_byte = lyricsFile . read();
+                        continue;
+                    }
                     if (word_builder.length() > 0)
                     {
-                        return_value . add_word(word_builder . toString());
+                        return_value . add_word(word_builder . toString() . toUpperCase());
                         word_builder . setLength(0);
+
                     }
                     return_value . newline();
+                    multiple_newline = true;
                     break;
                 }
                 case ' ':
                 {
                     if (multiple_whitespace)
                     {
+                        current_byte = lyricsFile . read();
                         continue;
                     }
                     else
                     {
-                        return_value . add_word(word_builder . toString());
-                        word_builder.setLength(0);
+                        if (word_builder . length() > 0)
+                        {
+                            return_value . add_word(word_builder . toString() . toUpperCase());
+                            word_builder.setLength(0);
+                        }
                         multiple_whitespace = true;
                         break;
                     }
                 }
                 default:
                 {
-                    multiple_whitespace = false;
-                    word_builder.append(byte_as_char);
-                    break;
+                    if (!Character.isLetter(byte_as_char))
+                    {
+                        multiple_newline = false;
+                        multiple_whitespace = false;
+                        current_byte = lyricsFile . read();
+                        continue;
+                    }
+                    else
+                    {
+                        multiple_newline = false;
+                        multiple_whitespace = false;
+                        word_builder . append(byte_as_char);
+                        break;
+                    }
                 }
 
             }
@@ -141,7 +189,6 @@ public class SongLyricsParser
         {
             InputStream i = new ByteArrayInputStream("This is an example\n".getBytes());
             SongLyricsParser.SongLyricsDescriptor o = parseLyrics(i);
-            DebugMessager.getInstance().debug_output(o);
         }
         catch(IOException e)
         {
