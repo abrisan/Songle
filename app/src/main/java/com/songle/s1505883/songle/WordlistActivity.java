@@ -55,7 +55,7 @@ public class WordlistActivity extends Activity
                 super(v);
                 this . categoryNameView = v.findViewById(R.id.wordlist_category_name);
                 this . categoryPreview = v . findViewById(R . id . wordlist_category_preview);
-                v . setOnClickListener((view) -> {this . flipState();});
+                v . setOnClickListener((view) -> this . flipState());
             }
 
             void setFullString(String fullString)
@@ -137,15 +137,6 @@ public class WordlistActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wordlist);
 
-        try
-        {
-            getActionBar() . setDisplayHomeAsUpEnabled(true);
-        }
-        catch (NullPointerException e)
-        {
-            e . printStackTrace();
-        }
-
         wordlistView = (RecyclerView) findViewById(R.id.wordlist_recycler_view);
         wordlistView . setHasFixedSize(true);
 
@@ -157,18 +148,5 @@ public class WordlistActivity extends Activity
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item . getItemId())
-        {
-            case android.R.id.home:
-            {
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
 }
