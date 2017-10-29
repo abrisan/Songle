@@ -40,7 +40,6 @@ public class StaticWordlist
         }
         catch (IOException e)
         {
-            DebugMessager.getInstance().info(System.getProperty("user.dir"));
             e . printStackTrace();
         }
     }
@@ -87,7 +86,9 @@ public class StaticWordlist
         return return_list;
     }
 
-
-
+    public SongLyricsParser.SongLyricsDescriptor getLyrics()
+    {
+        return this . lyrics;
+    }
 
 }
