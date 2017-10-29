@@ -3,6 +3,7 @@ package tools;
 
 import android.os.Debug;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,8 @@ public class SongLyricsParser
             words = new HashSet<>();
         }
 
+
+
         public void add_word(String word)
         {
             words . add(word);
@@ -54,7 +57,7 @@ public class SongLyricsParser
         {
             try
             {
-                return this . raw_lyrics . get(row) . get(word_number);
+                return this . raw_lyrics . get(row - 1) . get(word_number - 1);
             }
             catch (Exception e)
             {
@@ -80,6 +83,19 @@ public class SongLyricsParser
             return ret . toString();
         }
 
+        public void debugList()
+        {
+            for (int i = 0 ; i < this . raw_lyrics . size() ; ++i)
+            {
+                console . info(
+                        String.format("%d : %s",
+                                i + 1,
+                                this . raw_lyrics . get(i) . toString()
+                        )
+                );
+            }
+        }
+
     }
 
 
@@ -95,7 +111,6 @@ public class SongLyricsParser
         boolean multiple_newline = false;
 
         StringBuilder word_builder = new StringBuilder();
-
 
         while (current_byte != -1)
         {
@@ -129,8 +144,11 @@ public class SongLyricsParser
                     }
                     else
                     {
-                        return_value . add_word(word_builder . toString() . toUpperCase());
-                        word_builder.setLength(0);
+                        if (word_builder . length() > 0)
+                        {
+                            return_value . add_word(word_builder . toString() . toUpperCase());
+                            word_builder.setLength(0);
+                        }
                         multiple_whitespace = true;
                         break;
                     }
@@ -171,7 +189,6 @@ public class SongLyricsParser
         {
             InputStream i = new ByteArrayInputStream("This is an example\n".getBytes());
             SongLyricsParser.SongLyricsDescriptor o = parseLyrics(i);
-            DebugMessager.getInstance().debug_output(o);
         }
         catch(IOException e)
         {
