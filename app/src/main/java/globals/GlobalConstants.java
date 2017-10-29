@@ -16,4 +16,7 @@ public class GlobalConstants
         categoryColors . put("Unclassified", "#A569BD");
         categoryColors . put("Very Interesting", "#CB4335");
     }
+
+    public final static int SONGLE_PERMISSIONS_REQUEST_LOCATION = 1;
+    public final static float SONGLE_DISTANCE_WORD_GUESSED_TOLERANCE = 7;
 }
