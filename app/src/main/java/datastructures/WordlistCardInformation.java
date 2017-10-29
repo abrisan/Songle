@@ -84,6 +84,7 @@ public class WordlistCardInformation
             ret . append(this . found_words_in_category . get(i));
             ret . append('\n');
         }
+        ret . append("...");
         return ret . toString();
     }
 
