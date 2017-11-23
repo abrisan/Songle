@@ -9,29 +9,27 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.songle.s1505883.songle.WordlistActivity"
+    tools:context="com.songle.s1505883.songle.GuessedSongsActivity"
     >
 
-    <Button
+    <com.google.android.youtube.player.YouTubePlayerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/make_guess"
-        android:id="@+id/make_guess_button"
-        android:textSize="25sp"
-        android:textColor="@color/colorWhite"
-        android:background="@drawable/button"
-        android:onClick="guessClicked"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        />
+        android:id="@+id/youtubeView"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@id/youtubeView"
+        android:id="@+id/guessed_spacer"/>
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
-        android:id="@+id/wordlist_recycler_view"
+        android:id="@+id/guessedSongs_recycler_view"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:layout_below="@id/make_guess_button"
+        android:layout_below="@id/guessed_spacer"
         />
 </RelativeLayout>
