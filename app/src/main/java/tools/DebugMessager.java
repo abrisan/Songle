@@ -1,7 +1,9 @@
 package tools;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 public class DebugMessager
 {
@@ -45,6 +47,27 @@ public class DebugMessager
     public void debug_output(Object object)
     {
         _print_with_title("DEBUG OUTPUT", object.toString());
+    }
+
+    public <K, V> void debug_map(Map<K, V> map)
+    {
+        StringBuilder str = new StringBuilder();
+
+        str . append("{");
+
+        BiConsumer<K, V> output = (k, v) -> {
+            str . append("(");
+            str . append(k . toString());
+            str . append(" , ");
+            str . append(v . toString());
+            str . append(") ; ");
+        };
+
+        map . forEach(output);
+
+        str . append("}");
+
+        info(str . toString());
     }
 
     public void warning(final String warning)

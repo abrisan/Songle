@@ -2,6 +2,8 @@ package com.songle.s1505883.songle;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,6 +21,7 @@ import com.songle.s1505883.staticdata.StaticWordlist;
 import java.util.List;
 
 import datastructures.WordlistCardInformation;
+import globals.GlobalState;
 import tools.DebugMessager;
 import static tools.GenTools.getColorFromCategory;
 
@@ -36,7 +39,7 @@ public class WordlistActivity extends Activity
 
         private List<WordlistCardInformation> generate_dummy_data(Context context)
         {
-            return new StaticWordlist(context) . asList();
+            return GlobalState . getWordList() . asList();
         }
 
         private List<WordlistCardInformation> dataset;
@@ -111,6 +114,7 @@ public class WordlistActivity extends Activity
                     )
             );
 
+
             holder . categoryPreview . setText(
                     card_at_position . get_found_words_preview()
             );
@@ -146,6 +150,13 @@ public class WordlistActivity extends Activity
         wAdapter = new WordlistAdapter(this);
         wordlistView . setAdapter(wAdapter);
 
+
+    }
+
+    public void guessClicked(View v)
+    {
+        Intent showPopup = new Intent(this, GuessSongActivity.class);
+        startActivity(showPopup);
     }
 
 

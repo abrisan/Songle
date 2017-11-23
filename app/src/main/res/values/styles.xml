@@ -1,6 +1,8 @@
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Material.NoActionBar"/>
-    <style name="SplashTheme" parent="android:Theme.Material.Dialog.NoActionBar" />
+    <style name="AppTheme" parent="android:Theme.Material.Light"/>
+    <style name="SplashTheme" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="MapTheme" parent="android:Theme.Material.Light.NoActionBar"/>
+    <style name="PopupTheme" parent="android:Theme.Material.Light.Dialog.NoActionBar" />
 
 </resources>

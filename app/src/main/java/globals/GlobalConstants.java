@@ -19,4 +19,19 @@ public class GlobalConstants
 
     public final static int SONGLE_PERMISSIONS_REQUEST_LOCATION = 1;
     public final static float SONGLE_DISTANCE_WORD_GUESSED_TOLERANCE = 7;
+
+    public final static String[] difficulty_levels = new String[]{
+            "Beginner",
+            "Intermediate",
+            "Advanced",
+            "Expert",
+            "Champion",
+            "Smart Mode"
+    };
+
+    public final static String COLOR_RED_HEX = "#b02323";
+    public final static String COLOR_GREEN_HEX = "#007f00";
+    public final static String COLOR_WHITE = "#ffffff";
+    public final static String COLOR_LIGHT_GRAY = "#7B68EE";
+    public final static String COLOR_BLACK = "#000000";
 }

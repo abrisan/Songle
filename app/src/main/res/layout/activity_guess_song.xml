@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context="com.songle.s1505883.songle.GuessSongActivity"
+    android:id="@+id/guessPopup">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/songName"
+        android:hint="@string/song_name"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/artitst_name"
+        android:hint="@string/artist_name"
+        android:layout_below="@id/songName"/>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/make_guess"
+        android:onClick="makeGuessClicked"
+        android:layout_below="@id/artitst_name"/>
+
+
+</RelativeLayout>
