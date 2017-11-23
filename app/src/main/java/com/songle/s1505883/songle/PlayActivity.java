@@ -1,6 +1,7 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.songle.s1505883.staticdata.StaticPlacemarks;
 import android.location.LocationListener;
+import android.view.View;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -45,6 +47,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import globals.GlobalConstants;
+import globals.GlobalState;
 import tools.DebugMessager;
 import tools.SongLyricsParser;
 import tools.WordLocationParser;
@@ -289,7 +292,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     {
         super.onCreate(savedInstanceState);
 
-        this . placemarks = new StaticPlacemarks(this);
+        this . placemarks = GlobalState.getPlacemarks();
         this . icon_cache = new HashMap<String, Bitmap>();
 
         _init_location_services();
@@ -331,7 +334,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         _addMapPoints();
 
         Runnable set = () -> {
-            this .mMap . setMyLocationEnabled(true);
+            googleMap . setMyLocationEnabled(true);
         };
 
         _requestLocationPermission(set);
@@ -375,4 +378,10 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
     }
+
+    public void guessClicked(View v)
+    {
+        console . info("GUESS CLICKED");
+    }
+
 }
