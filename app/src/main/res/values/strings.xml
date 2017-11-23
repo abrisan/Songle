@@ -1,8 +1,127 @@
 <resources>
     <string name="app_name">Songle</string>
-    <string name="play_button">Play</string>
-    <string name="wordlist_button">Wordlist</string>
-    <string name="guessed_button">Guessed Songs</string>
+    <string name="play_button">Map</string>
+    <string name="wordlist_button">Words</string>
+    <string name="guessed_button">Player</string>
     <string name="settings_button">Settings</string>
     <string name="title_activity_play">Map</string>
+    <string name="ask_user">User Name</string>
+    <string name="welcome">Welcome to Songle</string>
+    <string name="next">Continue</string>
+    <string name="instructions">Instructions</string>
+    <string name="lorem_ipsum">
+        The Application contains 4 modes of operation:
+        \n\n1.) Play Mode : You see the map that corresponds to your difficulty setting and you can see the locations of the words. If you arrive at a word, you will be presented with a popup asking you to collect the word
+
+        \n\n2.) Words Mode : You can access the words that have already been guessed and that can be used to make a guess. You can also attempt to guess the song from this screen
+
+        \n\n3.) Player Mode : You can access the songs that you have guessed and play them back using an integrated YouTube player.
+
+        \n\n4.) Trade Mode : You can trade between undiscovered words of different categories
+    </string>
+    <string name="facebook_app_id">187182171759107</string>
+    <string name="fb_login_protocol_scheme">fb187182171759107</string>
+    <string name="smart_mode">Smart Mode</string>
+    <string name="smart_mode_description">
+        When using smart mode, you will be given a short test to determine your musical knowledge
+        and we use Machine Learning to determine which words you will get to play with.
+    </string>
+    <string name="diffculty">Difficulty</string>
+    <string name="finish">Finish</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string-array name="list_preference_entries">
+        <item>Entry 1</item>
+        <item>Entry 2</item>
+        <item>Entry 3</item>
+    </string-array>
+
+    <string-array name="list_preference_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="multi_select_list_preference_default_value"/>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notifications</string>
+
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="pref_difficulty">Tap to Choose Difficulty Level</string>
+    <string name="make_guess">Guess Song</string>
+    <string name="song_name">Enter song name</string>
+    <string name="artist_name">Enter artist name</string>
+    <string name="johndoe">John Doe</string>
+    <string name="trade">Trade</string>
+    <string name="guess">Guess!</string>
+    <string name="title_activity_home">HomeActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings2">Settings</string>
+    <string name="make_trade">Make Trade</string>
+
+
 </resources>
