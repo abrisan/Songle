@@ -1,8 +1,7 @@
-package com.songle.s1505883.staticdata;
+package datastructures;
 
 
 import android.content.Context;
-import android.os.Debug;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,26 +13,24 @@ import com.songle.s1505883.songle.R;
 import org.json.JSONException;
 
 import tools.DebugMessager;
-import tools.SongLyricsParser;
 import tools.WordLocationParser;
 
-public class StaticPlacemarks
+public class Placemarks
 {
     private List<WordLocationParser.LocationDescriptor> descriptors;
     private List<WordLocationParser.MarkerDescriptor> markers;
 
     private DebugMessager console = DebugMessager.getInstance();
 
-    public StaticPlacemarks(Context context)
+    public Placemarks(Wordlist wList, InputStream stream)
     {
         this . markers = new ArrayList<>();
         this . descriptors = new ArrayList<>();
         try
         {
-            InputStream stream = context . getResources() . openRawResource(R.raw.examplekml);
             WordLocationParser.parse(
                     stream,
-                    new StaticWordlist(context).getLyrics(),
+                    wList.getLyrics(),
                     this.descriptors,
                     this.markers
             );
