@@ -8,23 +8,23 @@ import java.util.List;
 
 import globals.GlobalConstants;
 
-public class WordlistCardInformation
+public class GuessedWords
 {
     private String category_name;
     private List<String> found_words_in_category;
 
-    public WordlistCardInformation()
+    public GuessedWords()
     {
         this . category_name = GlobalConstants.defaultCategory;
         this . found_words_in_category = new ArrayList<>();
     }
 
-    public WordlistCardInformation(String category_name)
+    public GuessedWords(String category_name)
     {
         this . category_name = category_name;
     }
 
-    public WordlistCardInformation(String category_name, List<String> found_words_in_category)
+    public GuessedWords(String category_name, List<String> found_words_in_category)
     {
         this . category_name = category_name;
         this . found_words_in_category = found_words_in_category;
