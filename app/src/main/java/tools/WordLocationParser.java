@@ -2,8 +2,6 @@ package tools;
 
 import android.util.Xml;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -11,117 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import datastructures.LocationDescriptor;
+import datastructures.MarkerDescriptor;
 import datastructures.SongLyricsDescriptor;
 
 public class WordLocationParser
 {
     private static final DebugMessager console = DebugMessager.getInstance();
-
-    public static class LocationDescriptor
-    {
-        private String word;
-        private String category;
-        private String coordinates;
-
-        public LocationDescriptor(){}
-        public LocationDescriptor(LocationDescriptor des)
-        {
-            this . word = des . word;
-            this . category = des . category;
-            this . coordinates = des . coordinates;
-        }
-
-        public void clear()
-        {
-            this . word = "";
-            this . category = "";
-            this . coordinates = "";
-        }
-
-        public void setWord(String word)
-        {
-            this . word = word;
-        }
-
-        public void setCategory(String category)
-        {
-            this . category = category;
-        }
-
-        public void setCoordinates(String coordinates)
-        {
-            this . coordinates = coordinates;
-        }
-
-        public String getCoordinates() {return this . coordinates;}
-        public String getCategory() {return this . category;}
-        public String getWord() {return this . word;}
-
-        public String serialise()
-                throws JSONException
-        {
-            JSONObject ret = new JSONObject();
-
-            ret . put("word", this . word);
-            ret . put("category", this . category);
-            ret . put("coordinates", this . coordinates);
-
-            return ret . toString(2);
-        }
-    }
-
-    public static class MarkerDescriptor
-    {
-        private String category;
-        private String icon_link;
-        private double scale;
-
-        public MarkerDescriptor(){}
-        public MarkerDescriptor(MarkerDescriptor other)
-        {
-            this . category = other . category;
-            this . icon_link = other . icon_link;
-            this . scale = other . scale;
-        }
-
-        public void clear()
-        {
-            this . category = "";
-            this . icon_link = "";
-            this . scale = 0;
-        }
-
-        public void setCategory(String category)
-        {
-            this . category = category;
-        }
-
-        public void setIconLink(String icon_link)
-        {
-            this . icon_link = icon_link;
-        }
-
-        public void setScale(String scale)
-        {
-            this . scale = Double.parseDouble(scale);
-        }
-
-        public double getScale() {return this . scale;}
-        public String getIconLink() {return this . icon_link;}
-        public String getCategory() {return this . category;}
-
-        public String serialise()
-                throws JSONException
-        {
-            JSONObject ret = new JSONObject();
-
-            ret . put("category", this . category);
-            ret . put("icon_link", this . icon_link);
-            ret . put("scale", this . scale);
-
-            return ret . toString(2);
-        }
-    }
 
     public static String _readText(XmlPullParser parser)
         throws IOException, XmlPullParserException
