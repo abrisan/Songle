@@ -1,14 +1,10 @@
 package datastructures;
 
 
-import android.content.Context;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-
-import com.songle.s1505883.songle.R;
 
 import org.json.JSONException;
 
@@ -17,8 +13,8 @@ import tools.WordLocationParser;
 
 public class Placemarks
 {
-    private List<WordLocationParser.LocationDescriptor> descriptors;
-    private List<WordLocationParser.MarkerDescriptor> markers;
+    private List<LocationDescriptor> descriptors;
+    private List<MarkerDescriptor> markers;
 
     private DebugMessager console = DebugMessager.getInstance();
 
@@ -75,14 +71,14 @@ public class Placemarks
 
     }
 
-    public List<WordLocationParser.LocationDescriptor> getDescriptors()
+    public List<LocationDescriptor> getDescriptors()
     {
         return this . descriptors;
     }
 
     public String getMarkerURLForCategory(String category)
     {
-        for (WordLocationParser.MarkerDescriptor m : this . markers)
+        for (MarkerDescriptor m : this . markers)
         {
             if (m . getCategory() . equals(category))
             {
@@ -95,7 +91,7 @@ public class Placemarks
 
     public double getScaleForCategory(String category)
     {
-        for (WordLocationParser.MarkerDescriptor m : this . markers)
+        for (MarkerDescriptor m : this . markers)
         {
             if (m . getCategory() . equals(m))
             {
