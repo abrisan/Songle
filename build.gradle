@@ -13,6 +13,10 @@ buildscript {
     }
 }
 
+ext {
+    archRoomVersion = "1.0.0-alpha1"
+}
+
 allprojects {
     repositories {
         jcenter()
@@ -25,3 +29,4 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+

@@ -1,10 +1,6 @@
 package tools;
 
-import android.location.Location;
-import android.os.Debug;
 import android.util.Xml;
-
-import com.google.android.gms.maps.model.Marker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,8 +9,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
+
+import datastructures.SongLyricsDescriptor;
 
 public class WordLocationParser
 {
@@ -176,7 +173,7 @@ public class WordLocationParser
     }
 
     private static void _readWord(LocationDescriptor buffer,
-                                  SongLyricsParser.SongLyricsDescriptor descriptor,
+                                  SongLyricsDescriptor descriptor,
                                   XmlPullParser parser)
             throws IOException, XmlPullParserException
     {
@@ -225,7 +222,7 @@ public class WordLocationParser
         parser . nextTag();
     }
 
-    private static void _readPlacemark(SongLyricsParser.SongLyricsDescriptor descriptor,
+    private static void _readPlacemark(SongLyricsDescriptor descriptor,
                                        XmlPullParser parser,
                                        LocationDescriptor buffer,
                                        List<LocationDescriptor> r_value)
@@ -244,7 +241,7 @@ public class WordLocationParser
     }
 
     private static void _parse_input(XmlPullParser parser,
-                                    SongLyricsParser.SongLyricsDescriptor descriptor,
+                                    SongLyricsDescriptor descriptor,
                                     List<LocationDescriptor> r_value,
                                     List<MarkerDescriptor> r_value_2)
             throws XmlPullParserException, IOException
@@ -293,7 +290,7 @@ public class WordLocationParser
     }
 
     public static void parse(InputStream inp,
-                             SongLyricsParser.SongLyricsDescriptor descriptor,
+                             SongLyricsDescriptor descriptor,
                              List<LocationDescriptor> r_value_1,
                              List<MarkerDescriptor> r_value_2)
             throws IOException, XmlPullParserException
