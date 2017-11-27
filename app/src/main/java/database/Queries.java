@@ -1,9 +1,8 @@
 package database;
 
-/**
- * Created by alexandrubrisan on 27/11/2017.
- */
 
 public class Queries
 {
+    public final static String getAllSongs = "SELECT * FROM songs";
+    public final static String getSongForId = "SELECT * FROM songs WHERE number = :id";
 }

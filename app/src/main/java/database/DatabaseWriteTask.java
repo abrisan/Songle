@@ -2,40 +2,26 @@ package database;
 
 import android.os.AsyncTask;
 
-import java.util.List;
-
-import datastructures.SongDescriptor;
+import java.util.function.BiConsumer;
 import tools.DebugMessager;
 
 
-public class AddSongDescriptorsTask extends AsyncTask<List<SongDescriptor>, Void, Void>
+public class DatabaseWriteTask<T> extends AsyncTask<T, Void, Void>
 {
     private AppDatabase db;
     private final DebugMessager console = DebugMessager.getInstance();
+    private BiConsumer<AppDatabase, T> operation;
 
-    public AddSongDescriptorsTask(AppDatabase db)
+    public DatabaseWriteTask(AppDatabase db, BiConsumer<AppDatabase, T> operation)
     {
         this . db = db;
+        this . operation = operation;
     }
 
     @Override
-    protected Void doInBackground(List<SongDescriptor>... voids)
+    protected Void doInBackground(T... voids)
     {
-        try
-        {
-            for (SongDescriptor d : voids[0])
-            {
-                this . db . userDao() . insertSong(d);
-            }
-        }
-        catch (android.database.sqlite.SQLiteConstraintException e)
-        {
-            console . error("Trying to insert duplicate key into database");
-        }
-        catch (Exception e)
-        {
-            throw e;
-        }
+        this . operation . accept(this . db, voids[0]);
         return null;
     }
 
