@@ -3,73 +3,20 @@ package tools;
 
 import android.util.Xml;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
+
+import datastructures.SongDescriptor;
 
 public class SongListParser
 {
     private static final DebugMessager console = DebugMessager.getInstance();
-
-    public static class SongDescriptor
-    {
-        private String songName;
-        private String artistName;
-        private String link;
-        private int number;
-
-        public SongDescriptor() {}
-
-        public SongDescriptor(SongDescriptor d)
-        {
-            this . songName = d . songName;
-            this . artistName = d . artistName;
-            this . link = d . link;
-            this . number = d . number;
-        }
-
-        public void clear()
-        {
-            this . songName = null;
-            this . artistName = null;
-            this . link = null;
-            this . number = -1;
-        }
-
-
-        public void setName(String name)  {  this . songName = name;  }
-
-        public void setArtistName(String artistName) { this . artistName = artistName; }
-
-        public void setLink(String link)  { this . link = link; }
-
-        public void setNumber(int number) {this . number = number;}
-
-        public String getSongName() {return this . songName;}
-        public String getArtistName() {return this . artistName;}
-        public String getLink() {return this . link;}
-        public int getNumber() {return this . number;}
-
-        public String serialise()
-            throws JSONException
-        {
-            JSONObject ret = new JSONObject();
-
-            ret . put("name", this . songName);
-            ret . put("artist", this . artistName);
-            ret . put("link", this . link);
-            ret . put("number", this.number);
-
-            return ret . toString(2);
-        }
-
-    }
 
     private static String _read_text(XmlPullParser parser, String tagCat)
             throws IOException, XmlPullParserException
@@ -103,7 +50,7 @@ public class SongListParser
                 _read_text(parser, "Artist")
         );
 
-        r_value . setName(
+        r_value . setSongName(
                 _read_text(parser, "Title")
         );
 
@@ -138,10 +85,12 @@ public class SongListParser
     }
 
 
-    public static void parse(InputStream inp,
-                             List<SongDescriptor> r_value)
+    public static String parse(InputStream inp,
+                               List<SongDescriptor> r_value,
+                               String current_timestamp)
             throws IOException, XmlPullParserException
     {
+        String timestamp = null;
         try
         {
             XmlPullParser parser = Xml.newPullParser();
@@ -154,7 +103,17 @@ public class SongListParser
 
             parser . require(XmlPullParser.START_TAG, null, "Songs");
 
-            _parse_input(parser, r_value);
+            timestamp = parser . getAttributeValue(null, "timestamp");
+
+            if (!timestamp.equals(current_timestamp))
+            {
+                _parse_input(parser, r_value);
+                return timestamp;
+            }
+            else
+            {
+                return null;
+            }
         }
         finally
         {
