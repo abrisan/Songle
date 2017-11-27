@@ -123,5 +123,8 @@
     <string name="title_activity_settings2">Settings</string>
     <string name="make_trade">Make Trade</string>
 
+    <string name="shared_prefs_key">prefs</string>
+    <string name="timestamp_key">timestamp</string>
+
 
 </resources>
