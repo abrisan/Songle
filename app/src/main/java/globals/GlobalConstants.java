@@ -1,7 +1,11 @@
 package globals;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import datastructures.SongDescriptor;
 
 public class GlobalConstants
 {
@@ -34,4 +38,48 @@ public class GlobalConstants
     public final static String COLOR_WHITE = "#ffffff";
     public final static String COLOR_LIGHT_GRAY = "#7B68EE";
     public final static String COLOR_BLACK = "#000000";
+
+    private final static SongDescriptor d1 = new SongDescriptor(
+      "Kogong",
+            "Mark Forster",
+            "https://youtu.be/7h7ntYLLrfQ",
+            1
+    );
+
+    private final static SongDescriptor d2 = new SongDescriptor(
+            "Lumea s-a schimbat",
+            "Cheloo",
+            "https://youtu.be/3gmJROB2Wzw",
+            2
+    );
+
+    private final static SongDescriptor d3 = new SongDescriptor(
+            "Dusk till Dawn",
+            "Sia feat. Zayn",
+            "https://youtu.be/tt2k8PGm-TI",
+            3
+    );
+
+    private final static SongDescriptor d4 = new SongDescriptor(
+            "Syrens in Paris",
+            "Fytch",
+            "https://youtu.be/3aeSiPZ9i9I",
+            4
+    );
+
+    private final static SongDescriptor d5 = new SongDescriptor(
+            "Big Girls Cry",
+            "Sia",
+            "https://www.youtube.com/watch?v=4NhKWZpkw1Q",
+            5
+    );
+
+    public final static List<SongDescriptor> placeholderVideos = Arrays.asList(
+            d1,
+            d2,
+            d3,
+            d4,
+            d5
+    );
+
 }
