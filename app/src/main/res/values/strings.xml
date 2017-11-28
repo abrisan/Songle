@@ -125,6 +125,7 @@
 
     <string name="shared_prefs_key">prefs</string>
     <string name="timestamp_key">timestamp</string>
+    <string name="difficulty_level">diff_level</string>
 
 
 </resources>

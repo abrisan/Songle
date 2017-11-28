@@ -1,5 +1,8 @@
 package tools;
 
+import android.app.Activity;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,5 +81,18 @@ public class DebugMessager
     public void error(final String error)
     {
         _print_with_title("ERROR", error);
+    }
+
+    public <T extends Activity> void debug_trace(T caller, String method, String...varargs)
+    {
+        _print_with_title(
+                "TRACE",
+                "[" +
+                        caller.getClass().getSimpleName() +
+                        " " +
+                        method +
+                        (varargs.length == 0 ? "" : Arrays.toString(varargs)) +
+                        "]"
+        );
     }
 }
