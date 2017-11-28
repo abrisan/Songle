@@ -1,9 +1,19 @@
 package database;
 
-/**
- * Created by alexandrubrisan on 28/11/2017.
- */
+import android.arch.persistence.room.Query;
 
-public class LocationDao
+import java.util.List;
+
+import datastructures.LocationDescriptor;
+
+public interface LocationDao
 {
+    @Query(Queries.getUndiscoveredLocations)
+    List<LocationDescriptor> getUndiscoveredActiveLocations();
+
+    @Query(Queries.countUndiscoveredLocations)
+    int countUndiscoveredLocations();
+
+    @Query(Queries.nukeLocationsDB)
+    void nukeDB();
 }

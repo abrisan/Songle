@@ -18,6 +18,12 @@ public interface SongDao
     @Query(Queries.getSongForId)
     SongDescriptor getSongForId(int id);
 
+    @Query(Queries.getGuessedSongs)
+    List<SongDescriptor> getGuessedSongs();
+
+    @Query(Queries.nukeSongsDB)
+    void nukeDB();
+
     @Insert
     void insertSong(SongDescriptor songDescriptor);
 }

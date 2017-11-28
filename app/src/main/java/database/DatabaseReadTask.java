@@ -1,9 +1,34 @@
 package database;
 
-/**
- * Created by alexandrubrisan on 28/11/2017.
- */
+import android.arch.persistence.room.Query;
+import android.os.AsyncTask;
 
-public class DatabaseReadTask
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+
+public class DatabaseReadTask<T> extends AsyncTask<Function<AppDatabase, T>, Void, T>
 {
+
+    private AppDatabase db;
+    private Consumer<T> callback;
+
+    public DatabaseReadTask(AppDatabase db, Consumer<T> callback)
+    {
+        this . db = db;
+        this . callback = callback;
+    }
+
+    @Override
+    @SafeVarargs
+    protected final T doInBackground(Function<AppDatabase, T>... params)
+    {
+        return params[0].apply(this . db);
+    }
+
+    @Override
+    protected void onPostExecute(T result)
+    {
+        this . callback . accept(result);
+    }
 }
