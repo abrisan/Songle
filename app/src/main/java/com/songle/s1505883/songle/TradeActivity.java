@@ -3,8 +3,6 @@ package com.songle.s1505883.songle;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.provider.Settings;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
@@ -15,15 +13,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-import datastructures.WordlistCardInformation;
 import globals.GlobalConstants;
-import globals.GlobalState;
 import tools.Algorithm;
 import tools.DebugMessager;
 import tools.WordLocationParser;
@@ -161,10 +155,10 @@ public class TradeActivity extends Activity
 
     private void _count_words()
     {
-        this . existingWords = Algorithm.counter(
-                GlobalState.getPlacemarks().getDescriptors(),
+        /*this . existingWords = Algorithm.counter(
+                GlobalState . getState() . getPlacemarks(this).getDescriptors(),
                 WordLocationParser.LocationDescriptor::getCategory
-        );
+        );*/
 
         this . existingWordsList = new ArrayList<>(this . existingWords . keySet());
 

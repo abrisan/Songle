@@ -1,26 +1,20 @@
 package com.songle.s1505883.songle;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
-import android.provider.Settings;
-import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,29 +24,23 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.songle.s1505883.staticdata.StaticPlacemarks;
+
+import datastructures.LocationDescriptor;
+import datastructures.Placemarks;
 import android.location.LocationListener;
 import android.view.View;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import globals.GlobalConstants;
-import globals.GlobalState;
 import tools.DebugMessager;
-import tools.SongLyricsParser;
-import tools.WordLocationParser;
-
-import com.songle.s1505883.songle.Manifest;
 
 public class PlayActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -61,7 +49,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private DebugMessager console = DebugMessager.getInstance();
-    private StaticPlacemarks placemarks;
+    private Placemarks placemarks;
     private Map<String, Bitmap> icon_cache;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -82,7 +70,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     private String _found_word(Location loc)
     {
         float[] results = new float[1];
-        for (WordLocationParser.LocationDescriptor l : placemarks . getDescriptors())
+        for (LocationDescriptor l : placemarks . getDescriptors())
         {
             String[] placemark = l . getCoordinates() . split(",");
             LatLng pos = new LatLng(
@@ -260,7 +248,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
-        Stream<WordLocationParser.LocationDescriptor> s =
+        Stream<LocationDescriptor> s =
                 this . placemarks . getDescriptors() . stream();
 
         Stream<Pair> points = s . map((x) -> {
@@ -292,7 +280,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     {
         super.onCreate(savedInstanceState);
 
-        this . placemarks = GlobalState.getPlacemarks();
+        // this . placemarks = GlobalState.getState().getPlacemarks(this);
         this . icon_cache = new HashMap<String, Bitmap>();
 
         _init_location_services();

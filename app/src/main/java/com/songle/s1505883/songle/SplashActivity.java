@@ -5,11 +5,18 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-import globals.GlobalConstants;
-import globals.GlobalState;
+import database.DatabaseWriteTask;
+import database.AppDatabase;
+import datastructures.SongDescriptor;
+import globals.GlobalLambdas;
+import tools.DebugMessager;
+import tools.DownloadLinks;
+import tools.Downloader;
 import tools.SongListParser;
 
 public class SplashActivity extends Activity
@@ -26,6 +33,21 @@ public class SplashActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        try
+        {
+            new Downloader(this, GlobalLambdas.initialCheckAndDownload).execute(
+                    DownloadLinks.getSongListLink()
+            );
+        }
+        catch (MalformedURLException e)
+        {
+            e . printStackTrace();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
 
 
         Intent transition;
