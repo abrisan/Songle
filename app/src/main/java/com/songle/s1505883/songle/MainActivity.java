@@ -1,34 +1,39 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.songle.s1505883.staticdata.StaticPlacemarks;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import globals.GlobalState;
 import tools.DebugMessager;
-import tools.SongListParser;
-import tools.SongLyricsParser;
 
 public class MainActivity extends Activity
 {
     private static DebugMessager console = DebugMessager.getInstance();
+    private String difficulty;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this . prefs = getSharedPreferences(
+                getString(R.string.shared_prefs_key),
+                Context.MODE_PRIVATE
+        );
+
+        this . difficulty = this . prefs . getString(
+                getString(R.string.difficulty_level),
+                null
+        );
+
+
     }
 
     @Override

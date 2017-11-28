@@ -46,7 +46,8 @@ public class GlobalLambdas
             {
                 try
                 {
-                    db.userDao().insertSong(x);
+                    db.songDao().nukeDB();
+                    db.songDao().insertSong(x);
                 } catch (android.database.sqlite.SQLiteConstraintException e)
                 {
                     DebugMessager.getInstance().error(
@@ -83,11 +84,11 @@ public class GlobalLambdas
 
             String new_timestamp = SongListParser.parse(inputStream, r_value, existingTimestamp);
 
-            if (new_timestamp == null)
+            /*if (new_timestamp == null)
             {
                 DebugMessager.getInstance().info("NO NEW SONGS ADDED");
                 return;
-            }
+            }*/
 
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(
@@ -100,12 +101,19 @@ public class GlobalLambdas
                     AppDatabase.getAppDatabase(ctxt),
                     r_value
             );
-
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    };
+
+
+    public static final Function<AppDatabase, List<SongDescriptor>> getGuessedDescriptors =
+            db -> db .songDao() . getGuessedSongs();
+
+    public static final Function<AppDatabase, Boolean> shouldDownloadLocation = db -> {
+        return false;
     };
 
 }

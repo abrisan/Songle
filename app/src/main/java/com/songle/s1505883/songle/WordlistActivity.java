@@ -3,25 +3,18 @@ package com.songle.s1505883.songle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.Settings;
-import android.support.v4.app.NavUtils;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import com.songle.s1505883.staticdata.StaticWordlist;
 
 import java.util.List;
 
-import datastructures.WordlistCardInformation;
-import globals.GlobalState;
+import datastructures.GuessedWords;
+
 import tools.DebugMessager;
 import static tools.GenTools.getColorFromCategory;
 
@@ -32,17 +25,18 @@ public class WordlistActivity extends Activity
     private RecyclerView.Adapter wAdapter;
     private RecyclerView.LayoutManager wLayoutManager;
     private DebugMessager console = DebugMessager.getInstance();
+    private WordlistActivity thisPtr = this;
 
 
     private class WordlistAdapter extends RecyclerView.Adapter<WordlistAdapter.ViewHolder>
     {
 
-        private List<WordlistCardInformation> generate_dummy_data(Context context)
+        private List<GuessedWords> generate_dummy_data(Context context)
         {
-            return GlobalState . getWordList() . asList();
+            return null;
         }
 
-        private List<WordlistCardInformation> dataset;
+        private List<GuessedWords> dataset;
 
         class ViewHolder extends RecyclerView.ViewHolder
         {
@@ -102,7 +96,7 @@ public class WordlistActivity extends Activity
         @Override
         public void onBindViewHolder(final WordlistAdapter.ViewHolder holder, int position)
         {
-            WordlistCardInformation card_at_position = this . dataset . get(position);
+            GuessedWords card_at_position = this . dataset . get(position);
 
             holder . categoryNameView . setText(
                     card_at_position . getCategory_name()
