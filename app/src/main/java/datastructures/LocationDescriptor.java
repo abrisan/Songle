@@ -1,21 +1,39 @@
 package datastructures;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import tools.WordLocationParser;
 
-/**
- * Created by alexandrubrisan on 27/11/2017.
- */
+@Entity(tableName = "locations")
 public class LocationDescriptor
 {
+    @ColumnInfo
     private String word;
+
+    @ColumnInfo
     private String category;
+
+    @ColumnInfo
     private String coordinates;
+
+    @ColumnInfo
+    private boolean discovered;
+
+    @ColumnInfo
+    private boolean available;
+
+    @PrimaryKey(autoGenerate = true)
+    private int id;
 
     public LocationDescriptor()
     {
+        this.discovered = false;
+        this.available = true;
     }
 
     public LocationDescriptor(LocationDescriptor des)
@@ -23,13 +41,17 @@ public class LocationDescriptor
         this.word = des.word;
         this.category = des.category;
         this.coordinates = des.coordinates;
+        this.discovered = des.discovered;
+        this.available = des.available;
     }
 
     public void clear()
     {
-        this.word = "";
-        this.category = "";
-        this.coordinates = "";
+        this.word = null;
+        this.category = null;
+        this.coordinates = null;
+        this.discovered = false;
+        this.available = true;
     }
 
     public void setWord(String word)
@@ -47,6 +69,10 @@ public class LocationDescriptor
         this.coordinates = coordinates;
     }
 
+    public void setAvailable(boolean available) {this.available = available;}
+
+    public void setDiscovered(boolean discovered) {this.discovered = discovered;}
+
     public String getCoordinates()
     {
         return this.coordinates;
@@ -61,6 +87,10 @@ public class LocationDescriptor
     {
         return this.word;
     }
+
+    public boolean getAvailable() {return this.available;}
+
+    public boolean getDiscovered() {return this.discovered;}
 
     public String serialise()
             throws JSONException
