@@ -3,6 +3,7 @@ package tools;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -36,5 +37,17 @@ public class Algorithm
     public static <T, F> Map<F, Integer> counter(List<T> list, Function<T, F> transform)
     {
         return counter(list . stream() . map(transform));
+    }
+
+    public static <T> int linearSearch(T[] arr, T target)
+    {
+        for (int i = 0 ; i < arr.length; ++i)
+        {
+            if (arr[i].equals(target))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 }

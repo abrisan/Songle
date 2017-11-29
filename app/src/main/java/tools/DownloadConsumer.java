@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.function.BiConsumer;
@@ -22,22 +23,23 @@ import java.util.logging.Handler;
 import datastructures.DownloadTypes;
 import globals.GlobalLambdas;
 
-public class Downloader extends AsyncTask<URL, Void, Void>
+public class DownloadConsumer extends AsyncTask<URL, Void, Void>
 {
     private BiConsumer<Context, InputStream> cons;
-    private Context ctxt;
+    private WeakReference<Context> ctxt;
 
-    public Downloader(Context ctxt, BiConsumer<Context, InputStream> consumer)
+    public DownloadConsumer(Context ctxt, BiConsumer<Context, InputStream> consumer)
     {
         this . cons = consumer;
-        this . ctxt = ctxt;
+        this . ctxt = new WeakReference<>(ctxt);
     }
 
     @Override
     protected Void doInBackground(URL... strings)
     {
+        DebugMessager.getInstance().debug_output(strings[0]);
         cons . accept(
-                ctxt,
+                ctxt.get(),
                 GlobalLambdas.get_stream.apply(strings[0])
         );
         return null;

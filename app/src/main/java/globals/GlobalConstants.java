@@ -82,4 +82,6 @@ public class GlobalConstants
             d5
     );
 
+    public static final String currentGameKey = "current_game";
+
 }

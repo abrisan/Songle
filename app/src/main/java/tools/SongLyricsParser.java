@@ -110,10 +110,4 @@ public class SongLyricsParser
         }
 
     }
-
-    public static void main(String[] args)
-            throws IOException
-    {
-
-    }
 }

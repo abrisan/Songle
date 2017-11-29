@@ -92,6 +92,10 @@ public class LocationDescriptor
 
     public boolean getDiscovered() {return this.discovered;}
 
+    public int getId() {return this . id;}
+
+    public void setId(int id) {this . id = id;}
+
     public String serialise()
             throws JSONException
     {
