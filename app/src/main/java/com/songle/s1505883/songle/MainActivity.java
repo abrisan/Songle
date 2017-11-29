@@ -1,6 +1,7 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,12 +11,26 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import datastructures.CurrentGameDescriptor;
+import datastructures.SongLyricsDescriptor;
+import globals.DownloadLinks;
+import globals.GlobalConstants;
+import globals.GlobalLambdas;
 import tools.DebugMessager;
+import tools.DownloadConsumer;
+import tools.DownloadFunction;
 
 public class MainActivity extends Activity
 {
     private static DebugMessager console = DebugMessager.getInstance();
-    private String difficulty;
+    CurrentGameDescriptor des;
     private SharedPreferences prefs;
 
     @Override
@@ -23,16 +38,16 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this . prefs = getSharedPreferences(
-                getString(R.string.shared_prefs_key),
-                Context.MODE_PRIVATE
-        );
 
-        this . difficulty = this . prefs . getString(
-                getString(R.string.difficulty_level),
-                null
-        );
-
+        if (savedInstanceState == null)
+        {
+            this . des = CurrentGameDescriptor.getInstanceForContext(this);
+            onGameChanged();
+        }
+        else
+        {
+            this . des = savedInstanceState.getParcelable(GlobalConstants.currentGameKey);
+        }
 
     }
 
@@ -89,5 +104,44 @@ public class MainActivity extends Activity
     {
         Intent move_to_trade = new Intent(this, TradeActivity.class);
         startActivity(move_to_trade);
+    }
+
+
+    protected void onLyricsDownloaded(SongLyricsDescriptor lyricsDescriptor)
+    {
+        try
+        {
+            // console . debug_trace(this, "onLyricsDownloaded");
+            new DownloadConsumer(
+                    this,
+                    GlobalLambdas.getMaps.apply(lyricsDescriptor)
+            ).execute(
+                    this . des . getCurrentDifficulty()
+            );
+        }
+        catch (Exception e)
+        {
+            e . printStackTrace();
+        }
+    }
+
+    protected void onGameChanged()
+    {
+        // console . debug_trace(this, "onGameChanged");
+        try
+        {
+            new DownloadFunction<>(
+                    GlobalLambdas.getLyrics,
+                    this::onLyricsDownloaded
+            ).execute(
+                    DownloadLinks.getSongLyricsLinkForSong(
+                            this.des.getGameLevel() + 1
+                    )
+            );
+        }
+        catch (MalformedURLException e)
+        {
+            e . printStackTrace();
+        }
     }
 }
