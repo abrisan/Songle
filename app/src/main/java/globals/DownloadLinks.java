@@ -1,4 +1,4 @@
-package tools;
+package globals;
 
 
 import java.net.MalformedURLException;
@@ -6,7 +6,7 @@ import java.net.URL;
 
 public class DownloadLinks
 {
-    private final static class InvalidSongNumberException extends MalformedURLException
+    public final static class InvalidSongNumberException extends MalformedURLException
     {
         public InvalidSongNumberException(MalformedURLException e)
         {
@@ -18,7 +18,7 @@ public class DownloadLinks
             "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/songs.xml";
 
     private final static String songLyricsLink =
-            "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/%s%d/lyrics.txt";
+            "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/%s%d/words.txt";
 
     private final static String mapLink =
             "http://www.inf.ed.ac.uk/teaching/courses/selp/data/songs/%s%d/map%d.kml";
