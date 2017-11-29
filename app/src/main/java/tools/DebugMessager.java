@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 public class DebugMessager
 {
@@ -83,7 +84,7 @@ public class DebugMessager
         _print_with_title("ERROR", error);
     }
 
-    public <T extends Activity> void debug_trace(T caller, String method, String...varargs)
+    public <T> void debug_trace(T caller, String method, String...varargs)
     {
         _print_with_title(
                 "TRACE",
@@ -94,5 +95,10 @@ public class DebugMessager
                         (varargs.length == 0 ? "" : Arrays.toString(varargs)) +
                         "]"
         );
+    }
+
+    public <T> void debug_output(Stream<T> str)
+    {
+        str . forEach(this::debug_output);
     }
 }
