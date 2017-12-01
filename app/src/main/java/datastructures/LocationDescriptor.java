@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import tools.WordLocationParser;
 
-@Entity(tableName = "locations")
+@Entity(tableName = "locations", primaryKeys = {"coordinates", "word", "category", "songId"})
 public class LocationDescriptor
 {
     @ColumnInfo
@@ -27,8 +27,9 @@ public class LocationDescriptor
     @ColumnInfo
     private boolean available;
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @ColumnInfo
+    private int songId;
+
 
     public LocationDescriptor()
     {
@@ -43,6 +44,7 @@ public class LocationDescriptor
         this.coordinates = des.coordinates;
         this.discovered = des.discovered;
         this.available = des.available;
+        this.songId = des.songId;
     }
 
     public void clear()
@@ -92,9 +94,10 @@ public class LocationDescriptor
 
     public boolean getDiscovered() {return this.discovered;}
 
-    public int getId() {return this . id;}
+    public int getSongId() {return this.songId;}
 
-    public void setId(int id) {this . id = id;}
+    public void setSongId(int songId) {this.songId = songId;}
+
 
     public String serialise()
             throws JSONException

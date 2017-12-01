@@ -1,6 +1,8 @@
 package datastructures;
 
 
+import com.google.android.gms.maps.model.Marker;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,57 +20,10 @@ public class Placemarks
 
     private DebugMessager console = DebugMessager.getInstance();
 
-    public Placemarks(Wordlist wList, InputStream stream)
+    public Placemarks(List<LocationDescriptor> descriptors, List<MarkerDescriptor> markers)
     {
-        this . markers = new ArrayList<>();
-        this . descriptors = new ArrayList<>();
-        try
-        {
-            WordLocationParser.parse(
-                    stream,
-                    wList.getLyrics(),
-                    this.descriptors,
-                    this.markers
-            );
-        }
-        catch(Exception e)
-        {
-            e . printStackTrace();
-        }
-
-    }
-
-    public void test()
-    {
-        Stream<String> res = markers . stream() . map((x) -> {
-            try
-            {
-                return x . serialise();
-            }
-            catch(JSONException e)
-            {
-                e . printStackTrace();
-            }
-            return "";
-        });
-
-        res . forEach(x -> console.info(x));
-
-        Stream<String> res2 = this . descriptors . stream() . map((x) -> {
-           try
-           {
-               return x . serialise();
-           }
-           catch (JSONException e)
-           {
-               e . printStackTrace();
-           }
-            return "";
-        });
-
-        res2 . forEach(x -> console.info(x));
-
-
+        this . descriptors = descriptors;
+        this . markers = markers;
     }
 
     public List<LocationDescriptor> getDescriptors()

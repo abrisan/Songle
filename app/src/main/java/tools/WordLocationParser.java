@@ -39,7 +39,7 @@ public class WordLocationParser
         parser .nextTag();
 
         parser . require(XmlPullParser.START_TAG, null, "scale");
-        descriptor . setScale(_readText(parser));
+        descriptor .setScaleFromString(_readText(parser));
         parser . require(XmlPullParser.END_TAG, null, "scale");
 
         parser . nextTag();
