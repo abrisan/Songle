@@ -11,11 +11,14 @@ public class Queries
 
 
     // Queries for LocationDao
+    public final static String getAllLocations =
+            "SELECT * FROM locations where map_number = :map_number LIMIT 10";
     public final static String getUndiscoveredLocations =
-            "SELECT * FROM locations WHERE discovered=0 AND available=1";
+            "SELECT * FROM locations WHERE discovered=0 AND available=1 AND map_number = :map_number";
     public final static String countUndiscoveredLocations =
             "SELECT COUNT(*) FROM locations WHERE discovered=0 AND available=1";
     public final static String nukeLocationsDB = "DELETE FROM locations WHERE 1 = 1";
+    public final static String getGuessedWords = "SELECT * FROM locations WHERE discovered=0 AND songId = :id";
 
     // Queries for MarkerDao
     public final static String getMarkerForCategory =
