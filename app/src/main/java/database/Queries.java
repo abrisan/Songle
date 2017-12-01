@@ -17,4 +17,10 @@ public class Queries
             "SELECT COUNT(*) FROM locations WHERE discovered=0 AND available=1";
     public final static String nukeLocationsDB = "DELETE FROM locations WHERE 1 = 1";
 
+    // Queries for MarkerDao
+    public final static String getMarkerForCategory =
+            "SELECT * FROM markers WHERE category = :category ";
+    public final static String getAllMarkers =
+            "SELECT * FROM markers";
+
 }

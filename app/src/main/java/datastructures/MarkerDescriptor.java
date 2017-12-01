@@ -1,18 +1,24 @@
 package datastructures;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import tools.WordLocationParser;
-
-/**
- * Created by alexandrubrisan on 27/11/2017.
- */
+@Entity(tableName = "markers")
 public class MarkerDescriptor
 {
+    @PrimaryKey
     private String category;
-    private String icon_link;
+
+    @ColumnInfo
+    private String iconLink;
+
+    @ColumnInfo
     private double scale;
+
 
     public MarkerDescriptor()
     {
@@ -21,14 +27,14 @@ public class MarkerDescriptor
     public MarkerDescriptor(MarkerDescriptor other)
     {
         this.category = other.category;
-        this.icon_link = other.icon_link;
+        this.iconLink = other.iconLink;
         this.scale = other.scale;
     }
 
     public void clear()
     {
         this.category = "";
-        this.icon_link = "";
+        this.iconLink = "";
         this.scale = 0;
     }
 
@@ -39,13 +45,15 @@ public class MarkerDescriptor
 
     public void setIconLink(String icon_link)
     {
-        this.icon_link = icon_link;
+        this.iconLink = icon_link;
     }
 
-    public void setScale(String scale)
+    public void setScaleFromString(String scale)
     {
         this.scale = Double.parseDouble(scale);
     }
+
+    public void setScale(double scale) {this.scale = scale;}
 
     public double getScale()
     {
@@ -54,7 +62,7 @@ public class MarkerDescriptor
 
     public String getIconLink()
     {
-        return this.icon_link;
+        return this.iconLink;
     }
 
     public String getCategory()
@@ -68,7 +76,7 @@ public class MarkerDescriptor
         JSONObject ret = new JSONObject();
 
         ret.put("category", this.category);
-        ret.put("icon_link", this.icon_link);
+        ret.put("iconLink", this.iconLink);
         ret.put("scale", this.scale);
 
         return ret.toString(2);

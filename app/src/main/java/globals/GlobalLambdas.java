@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 
 import com.songle.s1505883.songle.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -15,10 +13,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import database.AppDatabase;
@@ -27,7 +23,6 @@ import datastructures.MarkerDescriptor;
 import datastructures.Placemarks;
 import datastructures.SongDescriptor;
 import datastructures.SongLyricsDescriptor;
-import tools.Algorithm;
 import tools.DebugMessager;
 import tools.SongListParser;
 import tools.SongLyricsParser;
@@ -56,24 +51,30 @@ public class GlobalLambdas
     };
 
     public static final BiConsumer<AppDatabase, List<SongDescriptor>> insertSongsConsumer =
-            (db, l) -> l.forEach(x ->
+            (db, l) ->
             {
-                try
+                db.songDao().nukeDB();
+                l.forEach(x ->
                 {
-                    db.songDao().nukeDB();
-                    db.songDao().insertSong(x);
-                } catch (android.database.sqlite.SQLiteConstraintException e)
-                {
-                    DebugMessager.getInstance().error(
-                            "Trying to insert duplicate key " +
-                                    x.getNumber() +
-                                    " into database. Skipping"
-                    );
-                } catch (Exception e)
-                {
-                    throw e;
-                }
-            });
+                    try
+                    {
+                        db.songDao().insertSong(x);
+                    }
+                    catch (android.database.sqlite.SQLiteConstraintException e)
+                    {
+                        DebugMessager.getInstance().error(
+                                "Trying to insert duplicate key " +
+                                        x.getNumber() +
+                                        " into database. Skipping"
+                        );
+                    }
+                    catch (Exception e)
+                    {
+                        throw e;
+                    }
+                });
+            };
+
 
     public static final BiConsumer<Context, InputStream> initialCheckAndDownload = (ctxt, inputStream) ->
     {
@@ -141,6 +142,7 @@ public class GlobalLambdas
     public static final Function<SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (des) -> (ctxt, is) -> {
         List<LocationDescriptor> r_value_1 = new ArrayList<>();
         List<MarkerDescriptor> r_value_2 = new ArrayList<>();
+        AppDatabase db = AppDatabase.getAppDatabase(ctxt);
 
         try
         {
@@ -151,26 +153,50 @@ public class GlobalLambdas
                     r_value_2
             );
 
-            DebugMessager.getInstance().debug_output(r_value_1.stream().map(x -> {
+            r_value_1 . forEach(x ->
+            {
                 try
                 {
-                    if (x . getWord() . equals("NO SUCH INDEX"))
-                    {
-                        throw new IllegalStateException("Unkown index found");
-                    }
-                    return x . serialise();
+                    db.locationDao().insertLocations(x);
                 }
-                catch (JSONException e)
+                catch (android.database.sqlite.SQLiteConstraintException e)
                 {
-                    return Arrays.toString(e . getStackTrace());
+                    DebugMessager.getInstance().error(
+                            "Trying to insert duplicate key (" +
+                                    x.getCoordinates() + ", " +
+                                    x.getWord() + ", " +
+                                    x.getCategory() + ", " +
+                                    x . getSongId() + ")" +
+                                    " into database. Skipping"
+                    );
                 }
-            }));
+                catch(Exception e)
+                {
+                    throw e;
+                }
+            });
+
+            r_value_2 . forEach(x ->
+            {
+                try
+                {
+                    db.markerDao().insertMarkers(x);
+                }
+                catch (android.database.sqlite.SQLiteConstraintException e)
+                {
+                    DebugMessager.getInstance().error(
+                            "Trying to insert duplicate key " +
+                                    x.getCategory() +
+                                    " into database. Skipping"
+                    );
+                }
+                catch(Exception e)
+                {
+                    throw e;
+                }
+            });
         }
-        catch (IOException e)
-        {
-            e . printStackTrace();
-        }
-        catch (XmlPullParserException e)
+        catch (IOException|XmlPullParserException e)
         {
             e . printStackTrace();
         }
@@ -179,5 +205,10 @@ public class GlobalLambdas
             throw e;
         }
     };
+
+    public final static Function<AppDatabase, Placemarks> plm = db -> new Placemarks(
+            db . locationDao() . getUndiscoveredActiveLocations(),
+            db . markerDao() . getAllMarkers()
+    );
 
 }
