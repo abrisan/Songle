@@ -3,12 +3,19 @@ package datastructures;
 
 import android.provider.Settings;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import globals.GlobalConstants;
+import tools.PrettyPrinter;
 
-public class GuessedWords
+public class GuessedWords implements PrettyPrinter
 {
     private String category_name;
     private List<String> found_words_in_category;
@@ -27,7 +34,9 @@ public class GuessedWords
     public GuessedWords(String category_name, List<String> found_words_in_category)
     {
         this . category_name = category_name;
-        this . found_words_in_category = found_words_in_category;
+        Set<String> unique_words = new HashSet<>();
+        unique_words . addAll(found_words_in_category);
+        this . found_words_in_category = new ArrayList<>(unique_words);
     }
 
     public String getCategory_name()
@@ -91,5 +100,16 @@ public class GuessedWords
     public String get_full_words()
     {
         return this . toString();
+    }
+
+    public String serialise()
+            throws JSONException
+    {
+        JSONObject obj = new JSONObject();
+
+        obj.put("category", this.category_name);
+        obj.put("words", this.found_words_in_category);
+
+        return obj.toString(2);
     }
 }
