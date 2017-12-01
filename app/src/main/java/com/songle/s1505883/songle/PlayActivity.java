@@ -1,5 +1,6 @@
 package com.songle.s1505883.songle;
 
+import android.arch.persistence.room.PrimaryKey;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -25,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import database.AppDatabase;
+import database.DatabaseReadTask;
 import datastructures.LocationDescriptor;
 import datastructures.Placemarks;
 import android.location.LocationListener;
@@ -32,14 +35,18 @@ import android.view.View;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import globals.GlobalConstants;
+import globals.GlobalLambdas;
+import tools.Algorithm;
 import tools.DebugMessager;
 
 public class PlayActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -53,11 +60,18 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     private Map<String, Bitmap> icon_cache;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private int mapNumber;
 
     private void _init_location_services()
     {
+        console . debug_trace(this, "_init_location_services");
+
         if (this . mGoogleApiClient == null)
         {
+            console . debug_trace(this,
+                    "_init_location_services",
+                    "null"
+            );
             this . mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -100,6 +114,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationChanged(Location location)
             {
+                console . info("Location changed");
                 String found = _found_word(location);
                 if (found == null)
                 {
@@ -280,15 +295,14 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     {
         super.onCreate(savedInstanceState);
 
-        // this . placemarks = GlobalState.getState().getPlacemarks(this);
-        this . icon_cache = new HashMap<String, Bitmap>();
+        this . mapNumber = getIntent().getIntExtra(GlobalConstants.diffKey, 5);
 
-        _init_location_services();
-
-        setContentView(R.layout.activity_play);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                this::havePlacemarksCallback
+        ).execute(
+                GlobalLambdas.plm.apply(this . mapNumber)
+        );
     }
 
 
@@ -331,7 +345,9 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String permissions[], int[] grantResults)
+    {
+        console . debug_trace(this, "onRequestPermissionsResult");
         switch (requestCode) {
             case GlobalConstants.SONGLE_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0
@@ -354,22 +370,36 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnected(@Nullable Bundle bundle)
     {
+        console . debug_trace(this, "onConnected");
         _setupLocationListener();
     }
 
     @Override
     public void onConnectionSuspended(int i)
     {
+        console . debug_trace(this, "onConnectionSuspended");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
+        console . debug_trace(this, "onConnectionFailed");
     }
 
-    public void guessClicked(View v)
+    private void havePlacemarksCallback(Placemarks placemarks)
     {
-        console . info("GUESS CLICKED");
+        console . debug_trace(this, "havePlacemarksCallback");
+        console . debug_output(placemarks.getDescriptors());
+        this . placemarks = placemarks;
+        this . icon_cache = new HashMap<>();
+
+        _init_location_services();
+
+        setContentView(R.layout.activity_play);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
     }
 
 }
