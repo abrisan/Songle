@@ -6,20 +6,23 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
 import datastructures.LocationDescriptor;
+import datastructures.MarkerDescriptor;
 import datastructures.SongDescriptor;
 
 @Database(
         entities = {
                 SongDescriptor.class,
-                LocationDescriptor.class
+                LocationDescriptor.class,
+                MarkerDescriptor.class
         },
-        version=3
+        version=5
 )
 public abstract class AppDatabase extends RoomDatabase
 {
     private static AppDatabase INSTANCE;
     public abstract SongDao songDao();
     public abstract LocationDao locationDao();
+    public abstract MarkerDao markerDao();
 
     public static AppDatabase getAppDatabase(Context context)
     {

@@ -1,6 +1,7 @@
 package database;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -18,4 +19,7 @@ public interface LocationDao
 
     @Query(Queries.nukeLocationsDB)
     void nukeDB();
+
+    @Insert
+    void insertLocations(LocationDescriptor... locs);
 }
