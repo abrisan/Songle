@@ -1,5 +1,7 @@
 package tools;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,28 @@ public class Algorithm
         return counter(list . stream() . map(transform));
     }
 
+    public static <T, F, K> Map<F, List<K>> groupBy(List<T> input, Function<T, F> value, Function<T, K> key)
+    {
+        Map<F, List<K>> ret_value = new HashMap<>();
+
+        input . forEach(
+                elem -> {
+                    F elem_val = value.apply(elem);
+                    if (ret_value . containsKey(elem_val))
+                    {
+                        ret_value . get(elem_val) . add(key.apply(elem));
+                    }
+                    else
+                    {
+                        ret_value . put(elem_val,
+                                new ArrayList<>(Collections.singleton(key.apply(elem))));
+                    }
+                }
+        );
+
+        return ret_value;
+    }
+
     public static <T> int linearSearch(T[] arr, T target)
     {
         for (int i = 0 ; i < arr.length; ++i)
@@ -49,5 +73,60 @@ public class Algorithm
             }
         }
         return -1;
+    }
+
+    public static <K, V> V searchInMap(Map<K, V> map, K key, Function<K, K> transform, V def)
+    {
+        for (K k : map.keySet())
+        {
+            if (transform.apply(k).equals(transform.apply(key)))
+            {
+                return map.get(k);
+            }
+        }
+        return def;
+    }
+
+    private static int _levenshtein(String target, int t_i, String actual, int a_i)
+    {
+        if (Math.min(t_i, a_i) == 0)
+        {
+            return Math.max(t_i, a_i);
+        }
+
+        int cost = target.charAt(t_i) == actual.charAt(a_i-1) ? 0 : 1;
+
+        return Math.min(
+                Math.min(
+                        _levenshtein(
+                                target,
+                                t_i - 1,
+                                actual,
+                                a_i
+                        ) + 1,
+                        _levenshtein(
+                                target,
+                                t_i,
+                                actual,
+                                a_i - 1
+                        ) + 1
+                ),
+                _levenshtein(
+                        target,
+                        t_i - 1,
+                        actual,
+                        a_i - 1
+                ) + cost
+        );
+    }
+
+
+    public static boolean shouldAccept(String target, String actual)
+    {
+        int distance = _levenshtein(target, target.length(), actual, actual.length());
+
+        double target_length = (double) target.length();
+
+        return distance / target_length < 0.3;
     }
 }

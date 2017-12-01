@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import tools.WordLocationParser;
 
-@Entity(tableName = "locations", primaryKeys = {"coordinates", "word", "category", "songId"})
+@Entity(tableName = "locations", primaryKeys = {"coordinates", "word", "category", "songId", "map_number"})
 public class LocationDescriptor
 {
     @ColumnInfo
@@ -17,6 +17,9 @@ public class LocationDescriptor
 
     @ColumnInfo
     private String category;
+
+    @ColumnInfo
+    private int map_number;
 
     @ColumnInfo
     private String coordinates;
@@ -39,12 +42,13 @@ public class LocationDescriptor
 
     public LocationDescriptor(LocationDescriptor des)
     {
-        this.word = des.word;
-        this.category = des.category;
-        this.coordinates = des.coordinates;
-        this.discovered = des.discovered;
-        this.available = des.available;
-        this.songId = des.songId;
+        this . word = des.word;
+        this . category = des.category;
+        this . coordinates = des.coordinates;
+        this . discovered = des.discovered;
+        this . available = des.available;
+        this . songId = des.songId;
+        this . map_number = des . map_number;
     }
 
     public void clear()
@@ -98,6 +102,10 @@ public class LocationDescriptor
 
     public void setSongId(int songId) {this.songId = songId;}
 
+    public void setMap_number(int map_number) {this .map_number = map_number;}
+
+    public int getMap_number() {return this . map_number;}
+
 
     public String serialise()
             throws JSONException
@@ -107,6 +115,7 @@ public class LocationDescriptor
         ret.put("word", this.word);
         ret.put("category", this.category);
         ret.put("coordinates", this.coordinates);
+        ret.put("mapNumber", this . map_number);
 
         return ret.toString(2);
     }

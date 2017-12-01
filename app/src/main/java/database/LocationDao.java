@@ -12,13 +12,19 @@ import datastructures.LocationDescriptor;
 public interface LocationDao
 {
     @Query(Queries.getUndiscoveredLocations)
-    List<LocationDescriptor> getUndiscoveredActiveLocations();
+    List<LocationDescriptor> getUndiscoveredActiveLocations(int map_number);
 
     @Query(Queries.countUndiscoveredLocations)
     int countUndiscoveredLocations();
 
     @Query(Queries.nukeLocationsDB)
     void nukeDB();
+
+    @Query(Queries.getAllLocations)
+    List<LocationDescriptor> getSampleLocations(int map_number);
+
+    @Query(Queries.getGuessedWords)
+    List<LocationDescriptor> getGuessedWords(int id);
 
     @Insert
     void insertLocations(LocationDescriptor... locs);

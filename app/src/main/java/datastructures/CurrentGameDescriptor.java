@@ -2,10 +2,8 @@ package datastructures;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Debug;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.Settings;
 
 import com.songle.s1505883.songle.R;
 
@@ -24,14 +22,14 @@ import tools.DebugMessager;
 
 public class CurrentGameDescriptor implements Parcelable
 {
-    private int gameLevel;
+    private int songNumber;
     private boolean isFirstEverGame;
     private List<String> difficulties;
     private DebugMessager console = DebugMessager.getInstance();
 
-    public CurrentGameDescriptor(int gameLevel, String newDifficulty)
+    public CurrentGameDescriptor(int songNumber, String newDifficulty)
     {
-        this . gameLevel = gameLevel;
+        this .songNumber = songNumber;
         this . difficulties = Arrays.asList(
                 newDifficulty.split(";")
         );
@@ -53,7 +51,7 @@ public class CurrentGameDescriptor implements Parcelable
                 ctxt.getString(
                         R.string.difficulty_level
                 ),
-                GlobalConstants.difficulty_levels[0]
+                GlobalConstants.difficulty_levels[3]
         );
 
         int currentGame = prefs.getInt(
@@ -66,8 +64,24 @@ public class CurrentGameDescriptor implements Parcelable
         return new CurrentGameDescriptor(currentGame, diffLevel);
     }
 
-    public int getGameLevel() {return this . gameLevel;}
-    public void setGameLevel(int gameLevel) {this . gameLevel = gameLevel;}
+    public int getSongNumber() {return this .songNumber;}
+    public int getMapNumber()
+    {
+        int index = Algorithm.linearSearch(
+                GlobalConstants.difficulty_levels,
+                this.difficulties.get(
+                        this.difficulties.size() - 1
+                )
+        );
+
+        if (index < 0)
+        {
+            throw new IllegalStateException("Unkown difficulty");
+        }
+
+        return 5 - index;
+    }
+    public void setSongNumber(int songNumber) {this .songNumber = songNumber;}
 
     public List<String> getDifficulties() {return this . difficulties;}
     public void setDifficulties(List<String> newList) {this . difficulties = newList;}
@@ -89,7 +103,7 @@ public class CurrentGameDescriptor implements Parcelable
             throw new IllegalStateException("Unkown difficulty");
         }
         return DownloadLinks.getMapLinkForSongForMapNumber(
-                this . gameLevel + 1,
+                this .songNumber + 1,
                 5 - index
         );
     }
@@ -100,8 +114,8 @@ public class CurrentGameDescriptor implements Parcelable
         if (!this.difficulties.contains(difficulty))
         {
             return DownloadLinks.getMapLinkForSongForMapNumber(
-                    this.gameLevel,
-                    5  - Arrays.binarySearch(GlobalConstants.difficulty_levels, difficulty)
+                    this.songNumber,
+                    5  - Algorithm.linearSearch(GlobalConstants.difficulty_levels, difficulty)
             );
         }
         return null;
@@ -124,7 +138,7 @@ public class CurrentGameDescriptor implements Parcelable
                 }
         );
         diffLevels.deleteCharAt(diffLevels.length()-1);
-        dest . writeInt(this.gameLevel);
+        dest . writeInt(this.songNumber);
         dest . writeString(diffLevels.toString());
     }
 
@@ -145,7 +159,7 @@ public class CurrentGameDescriptor implements Parcelable
         try
         {
             JSONObject o = new JSONObject();
-            o . put("level", this.gameLevel);
+            o . put("level", this.songNumber);
             o . put("difficulty", this . difficulties.toString());
             return o.toString(2);
         }

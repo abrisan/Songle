@@ -3,9 +3,11 @@ package globals;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 
 import com.songle.s1505883.songle.R;
 
+import org.json.JSONException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -14,15 +16,22 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import database.AppDatabase;
+import datastructures.GuessedWords;
 import datastructures.LocationDescriptor;
 import datastructures.MarkerDescriptor;
 import datastructures.Placemarks;
 import datastructures.SongDescriptor;
 import datastructures.SongLyricsDescriptor;
+import tools.Algorithm;
 import tools.DebugMessager;
 import tools.SongListParser;
 import tools.SongLyricsParser;
@@ -139,7 +148,7 @@ public class GlobalLambdas
         }
     };
 
-    public static final Function<SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (des) -> (ctxt, is) -> {
+    public static final BiFunction<Integer, SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (lvl, des) -> (ctxt, is) -> {
         List<LocationDescriptor> r_value_1 = new ArrayList<>();
         List<MarkerDescriptor> r_value_2 = new ArrayList<>();
         AppDatabase db = AppDatabase.getAppDatabase(ctxt);
@@ -150,23 +159,37 @@ public class GlobalLambdas
                     is,
                     des,
                     r_value_1,
-                    r_value_2
+                    r_value_2,
+                    lvl
             );
+
+            DebugMessager . getInstance() . error(Integer.toString(lvl));
+
+            db . locationDao() . nukeDB();
 
             r_value_1 . forEach(x ->
             {
                 try
                 {
+                    try
+                    {
+                        DebugMessager.getInstance().error(x.serialise());
+                    }
+                    catch (JSONException e)
+                    {
+                        e . printStackTrace();
+                    }
                     db.locationDao().insertLocations(x);
                 }
                 catch (android.database.sqlite.SQLiteConstraintException e)
                 {
                     DebugMessager.getInstance().error(
                             "Trying to insert duplicate key (" +
-                                    x.getCoordinates() + ", " +
-                                    x.getWord() + ", " +
-                                    x.getCategory() + ", " +
-                                    x . getSongId() + ")" +
+                                    "coords: " + x.getCoordinates() + ", " +
+                                    "word: " + x.getWord() + ", " +
+                                    "category :" + x.getCategory() + ", " +
+                                    "map_number :" + x.getMap_number() + ", " +
+                                    "song_id :" + x . getSongId() + ")" +
                                     " into database. Skipping"
                     );
                 }
@@ -206,9 +229,25 @@ public class GlobalLambdas
         }
     };
 
-    public final static Function<AppDatabase, Placemarks> plm = db -> new Placemarks(
-            db . locationDao() . getUndiscoveredActiveLocations(),
-            db . markerDao() . getAllMarkers()
-    );
+    public final static Function<Integer, Function<AppDatabase, Placemarks>> plm = lvl -> db ->
+        new Placemarks(
+                db . locationDao() . getUndiscoveredActiveLocations(lvl),
+                db . markerDao() . getAllMarkers()
+        );
+
+    public final static Function<Integer, Function<AppDatabase, List<GuessedWords>>> gw = s_id ->
+            db -> {
+                List<LocationDescriptor> locs =  db . locationDao() . getGuessedWords(s_id);
+                Map<String, List<String>> grouped = Algorithm.groupBy(
+                        locs,
+                        LocationDescriptor::getCategory,
+                        LocationDescriptor::getWord
+                );
+
+                return grouped . keySet() . stream() . map(
+                        key -> new GuessedWords(key, grouped.get(key))
+                ).collect(Collectors.toList());
+    };
+
 
 }

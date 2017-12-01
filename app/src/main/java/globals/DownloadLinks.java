@@ -4,6 +4,8 @@ package globals;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import tools.DebugMessager;
+
 public class DownloadLinks
 {
     public final static class InvalidSongNumberException extends MalformedURLException
@@ -50,12 +52,16 @@ public class DownloadLinks
     {
         try
         {
-            return new URL(
+            URL ret_value = new URL(
                     String.format(mapLink,
                             songNumber < 10 ? "0" : "",
                             songNumber,
                             mapNumber)
             );
+
+            DebugMessager . getInstance() . debug_output(ret_value);
+
+            return ret_value;
         }
         catch(MalformedURLException e)
         {

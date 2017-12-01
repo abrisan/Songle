@@ -15,7 +15,7 @@ import datastructures.SongDescriptor;
                 LocationDescriptor.class,
                 MarkerDescriptor.class
         },
-        version=5
+        version=6
 )
 public abstract class AppDatabase extends RoomDatabase
 {

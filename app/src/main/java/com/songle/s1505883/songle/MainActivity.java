@@ -1,8 +1,6 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
-import android.arch.persistence.room.PrimaryKey;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,11 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 import datastructures.CurrentGameDescriptor;
 import datastructures.SongLyricsDescriptor;
@@ -85,6 +78,7 @@ public class MainActivity extends Activity
     public void playClicked(View view)
     {
         Intent move_to_map = new Intent(this, PlayActivity.class);
+        move_to_map . putExtra(GlobalConstants.diffKey, this . des . getMapNumber());
         startActivity(move_to_map);
     }
 
@@ -114,7 +108,7 @@ public class MainActivity extends Activity
             // console . debug_trace(this, "onLyricsDownloaded");
             new DownloadConsumer(
                     this,
-                    GlobalLambdas.getMaps.apply(lyricsDescriptor)
+                    GlobalLambdas.getMaps.apply(this . des . getMapNumber(), lyricsDescriptor)
             ).execute(
                     this . des . getCurrentDifficulty()
             );
@@ -135,7 +129,7 @@ public class MainActivity extends Activity
                     this::onLyricsDownloaded
             ).execute(
                     DownloadLinks.getSongLyricsLinkForSong(
-                            this.des.getGameLevel() + 1
+                            this.des.getSongNumber() + 1
                     )
             );
         }

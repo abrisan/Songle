@@ -1,11 +1,15 @@
 package globals;
 
+import android.graphics.Color;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import datastructures.SongDescriptor;
+import tools.Algorithm;
 
 public class GlobalConstants
 {
@@ -16,9 +20,9 @@ public class GlobalConstants
     {
         categoryColors . put("Interesting", "#138D75");
         categoryColors . put("Boring", "#85929E");
-        categoryColors . put("Not Boring", "#E59866");
+        categoryColors . put("NotBoring", "#E59866");
         categoryColors . put("Unclassified", "#A569BD");
-        categoryColors . put("Very Interesting", "#CB4335");
+        categoryColors . put("VeryInteresting", "#CB4335");
     }
 
     public final static int SONGLE_PERMISSIONS_REQUEST_LOCATION = 1;
@@ -32,6 +36,7 @@ public class GlobalConstants
             "Champion",
             "Smart Mode"
     };
+
 
     public final static String COLOR_RED_HEX = "#b02323";
     public final static String COLOR_GREEN_HEX = "#007f00";
@@ -83,5 +88,18 @@ public class GlobalConstants
     );
 
     public static final String currentGameKey = "current_game";
+    public static final String diffKey = "difficulty";
+
+    public static int getColorFromCategory(String category)
+    {
+        return Color.parseColor(
+                Algorithm.searchInMap(
+                        categoryColors,
+                        category,
+                        String::toLowerCase,
+                        "#FFFFFF"
+                )
+        );
+    }
 
 }

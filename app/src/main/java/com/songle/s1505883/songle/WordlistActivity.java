@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,10 +14,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import database.AppDatabase;
+import database.DatabaseReadTask;
 import datastructures.GuessedWords;
 
+import globals.GlobalConstants;
+import globals.GlobalLambdas;
 import tools.DebugMessager;
-import static tools.GenTools.getColorFromCategory;
 
 public class WordlistActivity extends Activity
 {
@@ -30,11 +34,6 @@ public class WordlistActivity extends Activity
 
     private class WordlistAdapter extends RecyclerView.Adapter<WordlistAdapter.ViewHolder>
     {
-
-        private List<GuessedWords> generate_dummy_data(Context context)
-        {
-            return null;
-        }
 
         private List<GuessedWords> dataset;
 
@@ -80,9 +79,9 @@ public class WordlistActivity extends Activity
             }
         }
 
-        public WordlistAdapter(Context context)
+        public WordlistAdapter(List<GuessedWords> gw)
         {
-            this . dataset = generate_dummy_data(context);
+            this . dataset = gw;
         }
 
         @Override
@@ -103,7 +102,7 @@ public class WordlistActivity extends Activity
             );
 
             holder . categoryNameView . setBackgroundColor(
-                    getColorFromCategory(
+                    GlobalConstants.getColorFromCategory(
                             card_at_position . getCategory_name()
                     )
             );
@@ -133,7 +132,28 @@ public class WordlistActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_wordlist);
+
+
+
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                this::gotGuessedWordsCallback
+        ).execute(GlobalLambdas.gw.apply(0));
+    }
+
+    public void guessClicked(View v)
+    {
+        Intent showPopup = new Intent(this, GuessSongActivity.class);
+        startActivity(showPopup);
+    }
+
+    public void gotGuessedWordsCallback(List<GuessedWords> guessedWords)
+    {
+        console . debug_trace(this, "gotGuessedWordsCallback");
+
+        console . debug_output_json(guessedWords);
 
         wordlistView = (RecyclerView) findViewById(R.id.wordlist_recycler_view);
         wordlistView . setHasFixedSize(true);
@@ -141,16 +161,8 @@ public class WordlistActivity extends Activity
         wLayoutManager = new LinearLayoutManager(this);
         wordlistView.setLayoutManager(wLayoutManager);
 
-        wAdapter = new WordlistAdapter(this);
+        wAdapter = new WordlistAdapter(guessedWords);
         wordlistView . setAdapter(wAdapter);
-
-
-    }
-
-    public void guessClicked(View v)
-    {
-        Intent showPopup = new Intent(this, GuessSongActivity.class);
-        startActivity(showPopup);
     }
 
 
