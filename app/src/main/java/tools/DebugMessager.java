@@ -2,6 +2,8 @@ package tools;
 
 import android.app.Activity;
 
+import org.json.JSONException;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ public class DebugMessager
         _print_with_title("Information", info);
     }
 
-    public void debug_output(final List<? extends Object> info)
+    public <T> void debug_output(final List<T> info)
     {
         for (Object o : info)
         {
@@ -100,5 +102,19 @@ public class DebugMessager
     public <T> void debug_output(Stream<T> str)
     {
         str . forEach(this::debug_output);
+    }
+
+    public <T extends PrettyPrinter> void debug_output_json(List<T> elems)
+    {
+        debug_output(elems.stream().map(x -> {
+            try
+            {
+                return x . serialise();
+            }
+            catch(JSONException e)
+            {
+                return e . getStackTrace()[0].toString();
+            }
+        }));
     }
 }
