@@ -10,10 +10,11 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
+import tools.PrettyPrinter;
 import tools.SongListParser;
 
 @Entity(tableName = "songs")
-public class SongDescriptor
+public class SongDescriptor implements PrettyPrinter
 {
     @ColumnInfo
     private String songName;
@@ -45,13 +46,13 @@ public class SongDescriptor
         this . guessed = false;
     }
 
-    public SongDescriptor(String songName, String artistName, String link, int number)
+    public SongDescriptor(String songName, String artistName, String link, int number, boolean guessed)
     {
         this.songName = songName;
         this.artistName = artistName;
         this.link = link;
         this.number = number;
-        this . guessed = false;
+        this . guessed = guessed;
     }
 
     public void clear()
@@ -120,6 +121,21 @@ public class SongDescriptor
         ret.put("guessed", this.guessed);
 
         return ret.toString(2);
+    }
+
+    public static SongDescriptor deserialise(String json_string)
+            throws JSONException
+    {
+        JSONObject obj = new JSONObject(json_string);
+
+        return new SongDescriptor(
+               obj . getString("name"),
+                obj . getString("artist"),
+                obj . getString("link"),
+                obj . getInt("number"),
+                obj . getBoolean("guessed")
+        );
+
     }
 
 }
