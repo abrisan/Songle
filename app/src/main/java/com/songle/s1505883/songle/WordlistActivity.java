@@ -1,10 +1,8 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +14,7 @@ import java.util.List;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
+import datastructures.CurrentGameDescriptor;
 import datastructures.GuessedWords;
 
 import globals.GlobalConstants;
@@ -30,6 +29,7 @@ public class WordlistActivity extends Activity
     private RecyclerView.LayoutManager wLayoutManager;
     private DebugMessager console = DebugMessager.getInstance();
     private WordlistActivity thisPtr = this;
+    private CurrentGameDescriptor des;
 
 
     private class WordlistAdapter extends RecyclerView.Adapter<WordlistAdapter.ViewHolder>
@@ -135,12 +135,16 @@ public class WordlistActivity extends Activity
 
         setContentView(R.layout.activity_wordlist);
 
-
+        this . des = getIntent() . getParcelableExtra(
+                GlobalConstants.gameDescriptor
+        );
 
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::gotGuessedWordsCallback
-        ).execute(GlobalLambdas.gw.apply(0));
+        ).execute(GlobalLambdas.gw.apply(
+                this . des . getSongNumber()
+        ));
     }
 
     public void guessClicked(View v)

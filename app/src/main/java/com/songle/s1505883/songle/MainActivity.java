@@ -10,8 +10,14 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.List;
 
+import database.AppDatabase;
+import database.DatabaseReadTask;
 import datastructures.CurrentGameDescriptor;
+import datastructures.Pair;
+import datastructures.SongDescriptor;
 import datastructures.SongLyricsDescriptor;
 import globals.DownloadLinks;
 import globals.GlobalConstants;
@@ -31,6 +37,21 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        new DatabaseReadTask<SongDescriptor>(
+                AppDatabase.getAppDatabase(this),
+                t -> {
+                    if (t == null)
+                    {
+                        console . error("Null from query");
+                    }
+                    else
+                    {
+                        console .debug_output_json(Collections.singletonList(t));
+                    }
+                }
+        ).execute(t -> t.songDao().getRandomUnguessedSong());
+
 
         if (savedInstanceState == null)
         {
@@ -78,13 +99,14 @@ public class MainActivity extends Activity
     public void playClicked(View view)
     {
         Intent move_to_map = new Intent(this, PlayActivity.class);
-        move_to_map . putExtra(GlobalConstants.diffKey, this . des . getMapNumber());
+        move_to_map . putExtra(GlobalConstants.gameDescriptor, this . des);
         startActivity(move_to_map);
     }
 
     public void wordlistClicked(View view)
     {
         Intent move_to_wordlist = new Intent(this, WordlistActivity.class);
+        move_to_wordlist . putExtra(GlobalConstants.gameDescriptor, this . des);
         startActivity(move_to_wordlist);
     }
 
@@ -97,6 +119,7 @@ public class MainActivity extends Activity
     public void tradeClicked(View view)
     {
         Intent move_to_trade = new Intent(this, TradeActivity.class);
+        move_to_trade . putExtra(GlobalConstants.gameDescriptor, this . des);
         startActivity(move_to_trade);
     }
 
@@ -105,7 +128,7 @@ public class MainActivity extends Activity
     {
         try
         {
-            // console . debug_trace(this, "onLyricsDownloaded");
+            console . debug_trace(this, "onLyricsDownloaded");
             new DownloadConsumer(
                     this,
                     GlobalLambdas.getMaps.apply(this . des . getMapNumber(), lyricsDescriptor)
@@ -121,7 +144,7 @@ public class MainActivity extends Activity
 
     protected void onGameChanged()
     {
-        // console . debug_trace(this, "onGameChanged");
+        console . debug_trace(this, "onGameChanged");
         try
         {
             new DownloadFunction<>(

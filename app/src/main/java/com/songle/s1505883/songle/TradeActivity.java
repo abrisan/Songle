@@ -1,6 +1,7 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.arch.persistence.room.Database;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import database.AppDatabase;
+import database.DatabaseReadTask;
+import datastructures.CurrentGameDescriptor;
+import datastructures.Pair;
 import globals.GlobalConstants;
 import tools.Algorithm;
 import tools.DebugMessager;
@@ -35,6 +40,8 @@ public class TradeActivity extends Activity
 
     private CategoryListAdapter.ViewHolder from;
     private CategoryListAdapter.ViewHolder to;
+
+    private CurrentGameDescriptor des;
 
     private class CategoryListAdapter extends RecyclerView.Adapter<CategoryListAdapter.ViewHolder>
     {
@@ -153,22 +160,27 @@ public class TradeActivity extends Activity
     }
 
 
-    private void _count_words()
+    private void _init_vars(List<Pair> pairs)
     {
-        /*this . existingWords = Algorithm.counter(
-                GlobalState . getState() . getPlacemarks(this).getDescriptors(),
-                WordLocationParser.LocationDescriptor::getCategory
-        );*/
+        this . existingWords = new HashMap<>();
+        this . existingWordsList = new ArrayList<>();
 
-        this . existingWordsList = new ArrayList<>(this . existingWords . keySet());
+        pairs . forEach(
+                x -> {
+                    this.existingWords.put(
+                            x.getKey(),
+                            x.getValue()
+                    );
 
-        console . debug_map(existingWords);
-    }
+                    this . existingWordsList . add(
+                            x . getKey()
+                    );
+                }
+        );
 
-    private void _init_vars()
-    {
-        _count_words();
         this . trades = new HashMap<>();
+
+        _init_cardview();
     }
 
 
@@ -190,8 +202,18 @@ public class TradeActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trade);
 
-        _init_vars();
-        _init_cardview();
+        this . des = getIntent().getParcelableExtra(
+                GlobalConstants.gameDescriptor
+        );
+
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                this::_init_vars
+        ).execute(
+                db -> db . locationDao() . countUndiscoveredWordsByCategory(
+                        des.getSongNumber()
+                )
+        );
 
         try
         {
