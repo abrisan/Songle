@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
+import datastructures.CurrentGameDescriptor;
 import datastructures.LocationDescriptor;
 import datastructures.Placemarks;
 import android.location.LocationListener;
@@ -60,7 +61,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     private Map<String, Bitmap> icon_cache;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    private int mapNumber;
+    private CurrentGameDescriptor des;
 
     private void _init_location_services()
     {
@@ -295,13 +296,13 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     {
         super.onCreate(savedInstanceState);
 
-        this . mapNumber = getIntent().getIntExtra(GlobalConstants.diffKey, 5);
+        this . des = getIntent() . getParcelableExtra(GlobalConstants.gameDescriptor);
 
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::havePlacemarksCallback
         ).execute(
-                GlobalLambdas.plm.apply(this . mapNumber)
+                GlobalLambdas.plm.apply(this . des . getMapNumber())
         );
     }
 

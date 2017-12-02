@@ -8,6 +8,8 @@ public class Queries
     public final static String getSongForId = "SELECT * FROM songs WHERE number = :id";
     public final static String getGuessedSongs = "SELECT * FROM songs WHERE guessed=1";
     public final static String nukeSongsDB = "DELETE FROM songs WHERE 1 = 1";
+    public final static String getRandomSong = "SELECT * FROM songs WHERE guessed=0 ORDER BY RANDOM() LIMIT 1";
+
 
 
     // Queries for LocationDao
@@ -19,6 +21,8 @@ public class Queries
             "SELECT COUNT(*) FROM locations WHERE discovered=0 AND available=1";
     public final static String nukeLocationsDB = "DELETE FROM locations WHERE 1 = 1";
     public final static String getGuessedWords = "SELECT * FROM locations WHERE discovered=0 AND songId = :id";
+    public final static String countByCategory = "SELECT category, COUNT(*) FROM locations WHERE discovered = 0 AND songId= :id GROUP BY category";
+
 
     // Queries for MarkerDao
     public final static String getMarkerForCategory =

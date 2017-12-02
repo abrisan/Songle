@@ -199,8 +199,7 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
 
         gAdapter = new GuessedSongsAdapter(new ArrayList<>());
         guessedSongsView.setAdapter(gAdapter);
-        // Retrieve updated information
-        // TODO : Manage when we need to actually pull from the database, there are very special cases
+
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this), this::receivedGuessedSongListCallback
         ).execute(GlobalLambdas.getGuessedDescriptors);

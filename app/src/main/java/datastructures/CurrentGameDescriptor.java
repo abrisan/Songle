@@ -23,13 +23,23 @@ import tools.DebugMessager;
 public class CurrentGameDescriptor implements Parcelable
 {
     private int songNumber;
-    private boolean isFirstEverGame;
+    private SongDescriptor song;
     private List<String> difficulties;
-    private DebugMessager console = DebugMessager.getInstance();
+    private static DebugMessager console = DebugMessager.getInstance();
 
-    public CurrentGameDescriptor(int songNumber, String newDifficulty)
+    public CurrentGameDescriptor(String songJson, String newDifficulty)
     {
-        this .songNumber = songNumber;
+        try
+        {
+            this . song = SongDescriptor.deserialise(songJson);
+        }
+        catch (JSONException|NullPointerException e)
+        {
+            this . song = new SongDescriptor();
+            console . error(e . getStackTrace()[0].toString());
+        }
+
+        this . songNumber = this . song . getNumber();
         this . difficulties = Arrays.asList(
                 newDifficulty.split(";")
         );
@@ -37,7 +47,7 @@ public class CurrentGameDescriptor implements Parcelable
 
     public CurrentGameDescriptor(Parcel in)
     {
-        this(in.readInt(), in.readString());
+        this(in.readString(), in.readString());
     }
 
     public static CurrentGameDescriptor getInstanceForContext(Context ctxt)
@@ -51,14 +61,14 @@ public class CurrentGameDescriptor implements Parcelable
                 ctxt.getString(
                         R.string.difficulty_level
                 ),
-                GlobalConstants.difficulty_levels[3]
+                GlobalConstants.difficulty_levels[0]
         );
 
-        int currentGame = prefs.getInt(
+        String currentGame = prefs.getString(
                 ctxt.getString(
                         R.string.current_game_index
                 ),
-                0
+                null
         );
 
         return new CurrentGameDescriptor(currentGame, diffLevel);
@@ -81,12 +91,6 @@ public class CurrentGameDescriptor implements Parcelable
 
         return 5 - index;
     }
-    public void setSongNumber(int songNumber) {this .songNumber = songNumber;}
-
-    public List<String> getDifficulties() {return this . difficulties;}
-    public void setDifficulties(List<String> newList) {this . difficulties = newList;}
-
-    public void setFirstEverGame(boolean val) {this . isFirstEverGame = val;}
 
     public URL getCurrentDifficulty()
             throws MalformedURLException
@@ -138,7 +142,14 @@ public class CurrentGameDescriptor implements Parcelable
                 }
         );
         diffLevels.deleteCharAt(diffLevels.length()-1);
-        dest . writeInt(this.songNumber);
+        try
+        {
+            dest . writeString(this.song.serialise());
+        }
+        catch (JSONException e)
+        {
+            dest . writeString(null);
+        }
         dest . writeString(diffLevels.toString());
     }
 

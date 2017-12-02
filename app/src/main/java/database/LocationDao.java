@@ -7,6 +7,7 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 import datastructures.LocationDescriptor;
+import datastructures.Pair;
 
 @Dao
 public interface LocationDao
@@ -25,6 +26,9 @@ public interface LocationDao
 
     @Query(Queries.getGuessedWords)
     List<LocationDescriptor> getGuessedWords(int id);
+
+    @Query(Queries.countByCategory)
+    List<Pair> countUndiscoveredWordsByCategory(int id);
 
     @Insert
     void insertLocations(LocationDescriptor... locs);
