@@ -24,6 +24,9 @@ public interface SongDao
     @Query(Queries.nukeSongsDB)
     void nukeDB();
 
+    @Query(Queries.getRandomSong)
+    SongDescriptor getRandomUnguessedSong();
+
     @Insert
     void insertSong(SongDescriptor songDescriptor);
 }
