@@ -48,35 +48,40 @@ public class GlobalConstants
       "Kogong",
             "Mark Forster",
             "https://youtu.be/7h7ntYLLrfQ",
-            1
+            1,
+            false
     );
 
     private final static SongDescriptor d2 = new SongDescriptor(
             "Lumea s-a schimbat",
             "Cheloo",
             "https://youtu.be/3gmJROB2Wzw",
-            2
+            2,
+            false
     );
 
     private final static SongDescriptor d3 = new SongDescriptor(
             "Dusk till Dawn",
             "Sia feat. Zayn",
             "https://youtu.be/tt2k8PGm-TI",
-            3
+            3,
+            false
     );
 
     private final static SongDescriptor d4 = new SongDescriptor(
             "Syrens in Paris",
             "Fytch",
             "https://youtu.be/3aeSiPZ9i9I",
-            4
+            4,
+            false
     );
 
     private final static SongDescriptor d5 = new SongDescriptor(
             "Big Girls Cry",
             "Sia",
             "https://www.youtube.com/watch?v=4NhKWZpkw1Q",
-            5
+            5,
+            false
     );
 
     public final static List<SongDescriptor> placeholderVideos = Arrays.asList(
@@ -89,6 +94,7 @@ public class GlobalConstants
 
     public static final String currentGameKey = "current_game";
     public static final String diffKey = "difficulty";
+    public static final String gameDescriptor = "game_descriptor";
 
     public static int getColorFromCategory(String category)
     {
