@@ -52,7 +52,14 @@ public class DebugMessager
 
     public void debug_output(Object object)
     {
-        _print_with_title("DEBUG OUTPUT", object.toString());
+        if (object == null)
+        {
+            _print_with_title("DEBUG OUTPUT", "null");
+        }
+        else
+        {
+            _print_with_title("DEBUG OUTPUT", object.toString());
+        }
     }
 
     public <K, V> void debug_map(Map<K, V> map)
