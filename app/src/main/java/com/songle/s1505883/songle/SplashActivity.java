@@ -14,7 +14,7 @@ public class SplashActivity extends Activity
 
     private boolean _shouldDisplayWelcome()
     {
-        return false;
+        return true;
     }
 
 

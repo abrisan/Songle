@@ -1,8 +1,10 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Debug;
+import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -64,5 +66,12 @@ public class DifficultyActivity extends Activity
         setContentView(R.layout.activity_difficulty);
 
         _init_widgets();
+    }
+
+    public void finishClicked(View view)
+    {
+        startActivity(
+                new Intent(this, MainActivity.class)
+        );
     }
 }
