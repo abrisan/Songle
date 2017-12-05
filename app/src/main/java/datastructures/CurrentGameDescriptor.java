@@ -45,6 +45,15 @@ public class CurrentGameDescriptor implements Parcelable
         );
     }
 
+    public CurrentGameDescriptor(SongDescriptor des, String difficulty)
+    {
+        this . song = des;
+        this . songNumber = this . song . getNumber();
+        this . difficulties = Arrays.asList(
+                difficulty.split(";")
+        );
+    }
+
     public CurrentGameDescriptor(Parcel in)
     {
         this(in.readString(), in.readString());
@@ -70,6 +79,11 @@ public class CurrentGameDescriptor implements Parcelable
                 ),
                 null
         );
+
+        if (currentGame == null)
+        {
+            return null;
+        }
 
         return new CurrentGameDescriptor(currentGame, diffLevel);
     }
@@ -179,6 +193,11 @@ public class CurrentGameDescriptor implements Parcelable
             e . printStackTrace();
         }
         return null;
+    }
+
+    public SongDescriptor getDescriptor()
+    {
+        return this . song;
     }
 
 }
