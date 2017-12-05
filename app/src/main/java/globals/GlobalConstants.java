@@ -110,5 +110,6 @@ public class GlobalConstants
 
     public static final String userName = "userName";
     public static final String imageURI = "userURI";
+    public static final String onlineImageURL = "onlineURL";
 
 }
