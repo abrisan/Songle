@@ -4,29 +4,35 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
-import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.HttpMethod;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import globals.GlobalConstants;
 import tools.DebugMessager;
-import tools.PrettyPrinter;
+import tools.DownloadFunction;
 
 public class WelcomeActivity extends Activity
 {
@@ -35,12 +41,19 @@ public class WelcomeActivity extends Activity
     private final static DebugMessager console = DebugMessager.getInstance();
     private static final int PICK_IMAGE=1;
     private Uri profile_pic;
-    
+    private URL online_profile_pic;
+    private String name;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        getSharedPreferences(
+                getString(R.string.shared_prefs_key),
+                Context.MODE_PRIVATE
+        ).edit().clear().commit();
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
         callbackManager = CallbackManager.Factory.create();
@@ -54,6 +67,50 @@ public class WelcomeActivity extends Activity
             @Override
             public void onSuccess(LoginResult loginResult)
             {
+                console . debug_trace(this, "onSuccess");
+                AccessToken token = loginResult.getAccessToken();
+                GraphRequest request = GraphRequest.newMeRequest(token, (json_object, response) -> {
+                    try
+                    {
+                        console . error(
+                                json_object.toString(2)
+                        );
+
+                        setUserName(json_object.getString("name"));
+
+                        Bundle params = new Bundle();
+                        params.putInt("redirect", 0);
+                        params.putString("type", "normal");
+
+                        new GraphRequest(
+                                token,
+                                "/" + json_object.getString("id") +"/picture",
+                                params,
+                                HttpMethod.GET,
+                                response1 -> {
+                                    try
+                                    {
+                                        JSONObject obj = response1.getJSONObject();
+                                        URL url = new URL(
+                                                obj.getJSONObject("data").getString("url")
+                                        );
+                                        haveImageURLCallback(url);
+                                    }
+                                    catch (NullPointerException|JSONException|MalformedURLException e)
+                                    {
+                                        e . printStackTrace();
+                                    }
+                                }
+                        ).executeAsync();
+                    }
+                    catch (JSONException e)
+                    {
+                        e . printStackTrace();
+                    }
+                });
+
+                request . executeAsync();
+
                 console . info("Facebook success");
             }
 
@@ -97,10 +154,8 @@ public class WelcomeActivity extends Activity
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        console . debug_trace(this, "onActivityResult");
         if (resultCode != RESULT_OK)
         {
-            console . debug_trace(this, "onActivityResult", "not ok");
             return;
         }
         if (requestCode == PICK_IMAGE)
@@ -108,6 +163,10 @@ public class WelcomeActivity extends Activity
             if (data != null)
             {
                 Uri imageUri  = data . getData();
+                if (online_profile_pic != null)
+                {
+                    online_profile_pic = null;
+                }
                 Drawable drawable;
                 try
                 {
@@ -126,6 +185,10 @@ public class WelcomeActivity extends Activity
                 this . profile_pic = imageUri;
             }
         }
+        else
+        {
+            callbackManager.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     private void setImageDrawable(Drawable drawable)
@@ -139,6 +202,12 @@ public class WelcomeActivity extends Activity
     private String _get_username()
     {
         return ((EditText) this . findViewById(R.id.userName)).getText().toString();
+    }
+
+    private void setUserName(String name)
+    {
+        this . name = name;
+        ((EditText) this.findViewById(R.id.userName)).setText(name);
     }
 
     private void saveStateToPrefs()
@@ -157,11 +226,35 @@ public class WelcomeActivity extends Activity
                 user_name
         );
 
+        String imgURI = this . profile_pic == null ? "null" : this . profile_pic . toString();
+
         edit . putString(
                 GlobalConstants.imageURI,
-                this . profile_pic . toString()
+                imgURI
+        );
+
+        String onlineURL = this . online_profile_pic == null ? "null" : this . online_profile_pic . toString();
+
+        edit . putString(
+                GlobalConstants.onlineImageURL,
+                onlineURL
         );
 
         edit . apply();
     }
+
+    private void haveImageURLCallback(URL url)
+    {
+        this . online_profile_pic = url;
+        if (this . profile_pic != null)
+        {
+            this . profile_pic = null;
+        }
+        new DownloadFunction<>(
+                x -> BitmapDrawable.createFromStream(x, "fbPhoto"),
+                this::setImageDrawable
+        ).execute(url);
+
+    }
+
 }

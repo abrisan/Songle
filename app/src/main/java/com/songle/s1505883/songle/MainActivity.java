@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,15 +15,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
+import java.net.URL;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
 import datastructures.CurrentGameDescriptor;
-import datastructures.Pair;
 import datastructures.SongDescriptor;
 import datastructures.SongLyricsDescriptor;
 import globals.DownloadLinks;
@@ -35,6 +36,7 @@ public class MainActivity extends Activity
 {
     private static DebugMessager console = DebugMessager.getInstance();
     CurrentGameDescriptor des;
+    String difficulty;
     private SharedPreferences prefs;
 
     @Override
@@ -43,32 +45,36 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        console . debug_method_trace(this, "onCreate", "starting to eval onCreate");
+
         _load_from_prefs();
-
-        new DatabaseReadTask<SongDescriptor>(
-                AppDatabase.getAppDatabase(this),
-                t -> {
-                    if (t == null)
-                    {
-                        console . error("Null from query");
-                    }
-                    else
-                    {
-                        console .debug_output_json(Collections.singletonList(t));
-                    }
-                }
-        ).execute(t -> t.songDao().getRandomUnguessedSong());
-
 
         if (savedInstanceState == null)
         {
+            console . debug_method_trace(this, "onCreate", "savedInstanceState is null");
             this . des = CurrentGameDescriptor.getInstanceForContext(this);
-            onGameChanged();
+            if (this . des == null)
+            {
+                /*Snackbar.make(
+                        this.findViewById(R.id.activity_main),
+                        "No game saved. Selecting random game",
+                        10
+                );
+                */
+                console . debug_method_trace(this, "onCreate", "creating random game");
+                new DatabaseReadTask<>(
+                        AppDatabase.getAppDatabase(this),
+                        this::setDes
+                ).execute(t -> t.songDao().getRandomUnguessedSong());
+            }
         }
         else
         {
+            console . debug_method_trace(this, "onCreate", "usingParcelable");
             this . des = savedInstanceState.getParcelable(GlobalConstants.currentGameKey);
         }
+
+        console . flushMethodTrace();
 
     }
 
@@ -133,9 +139,9 @@ public class MainActivity extends Activity
 
     protected void onLyricsDownloaded(SongLyricsDescriptor lyricsDescriptor)
     {
+        console . debug_method_trace(this, "onLyricsDownloaded");
         try
         {
-            console . debug_trace(this, "onLyricsDownloaded");
             new DownloadConsumer(
                     this,
                     GlobalLambdas.getMaps.apply(this . des . getMapNumber(), lyricsDescriptor)
@@ -151,7 +157,7 @@ public class MainActivity extends Activity
 
     protected void onGameChanged()
     {
-        console . debug_trace(this, "onGameChanged");
+        console . debug_method_trace(this, "onGameChanged");
         try
         {
             new DownloadFunction<>(
@@ -171,6 +177,7 @@ public class MainActivity extends Activity
 
     private void _load_from_prefs()
     {
+        console . debug_method_trace(this, "load_from_prefs");
         SharedPreferences prefs = getSharedPreferences(
                 getString(R.string.shared_prefs_key),
                 Context.MODE_PRIVATE
@@ -187,6 +194,16 @@ public class MainActivity extends Activity
                 null
         );
 
+        String onlineURL = prefs . getString(
+                GlobalConstants.onlineImageURL,
+                null
+        );
+
+        this . difficulty = prefs . getString(
+                GlobalConstants.diffKey,
+                "Beginner"
+        );
+
         if (userURI != null)
         {
             Uri uri = Uri.parse(userURI);
@@ -195,7 +212,82 @@ public class MainActivity extends Activity
             );
         }
 
+        if (onlineURL != null && !onlineURL.equals("null"))
+        {
+            try
+            {
+                new DownloadFunction<>(
+                        x -> BitmapDrawable.createFromStream(x, "fbPhoto"),
+                        this::setImageDrawable
+                ).execute(
+                        new URL(onlineURL)
+                );
+            }
+            catch(MalformedURLException e)
+            {
+                e . printStackTrace();
+            }
+
+        }
+
         ((TextView) this . findViewById(R.id.main_user_name)).setText(userName);
+    }
+
+    private void setImageDrawable(Drawable drw)
+    {
+        ((ImageView) this . findViewById(R.id.main_profile_pic)).setBackground(
+                drw
+        );
+    }
+
+    private void setDes(SongDescriptor des)
+    {
+        if (des == null)
+        {
+            console . error("Got null from query");
+        }
+        this . des = new CurrentGameDescriptor(des, this . difficulty);
+        onGameChanged();
+    }
+
+    private void saveState()
+    {
+        console . debug_method_trace(this, "saveState");
+        SharedPreferences prefs = getSharedPreferences(
+                getString(
+                        R.string.shared_prefs_key
+                ),
+                Context.MODE_PRIVATE
+        );
+
+        SharedPreferences.Editor editor = prefs.edit();
+
+        try
+        {
+            editor.putString(
+                    getString(R.string.current_game_index),
+                    this . des . getDescriptor() . serialise()
+            );
+            editor.apply();
+        }
+        catch (JSONException e)
+        {
+            e . printStackTrace();
+        }
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        saveState();
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        saveState();
     }
 
 }
