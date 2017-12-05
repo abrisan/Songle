@@ -16,13 +16,13 @@
         android:layout_marginStart="4dp"
         android:text="@string/smart_mode"
         android:textAppearance="@android:style/TextAppearance.Material.Large"
-        app:layout_constraintBottom_toTopOf="@+id/textView17"
-        app:layout_constraintEnd_toEndOf="@+id/textView17"
+        app:layout_constraintBottom_toTopOf="@+id/difficultyDescription"
+        app:layout_constraintEnd_toEndOf="@+id/difficultyDescription"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/textView17"/>
+        app:layout_constraintStart_toStartOf="@+id/difficultyDescription"/>
 
     <TextView
-        android:id="@+id/textView17"
+        android:id="@+id/difficultyDescription"
         android:layout_width="185dp"
         android:layout_height="274dp"
         android:layout_marginBottom="92dp"
@@ -62,7 +62,8 @@
         android:text="@string/finish"
         app:layout_constraintBottom_toTopOf="@+id/progressBar5"
         app:layout_constraintEnd_toEndOf="@+id/progressBar5"
-        app:layout_constraintStart_toStartOf="@+id/progressBar5"/>
+        app:layout_constraintStart_toStartOf="@+id/progressBar5"
+        android:onClick="finishClicked"/>
 
     <SeekBar
         android:id="@+id/seekBar2"
