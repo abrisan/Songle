@@ -35,6 +35,7 @@ dependencies {
     compile 'com.facebook.android:facebook-login:[4,5)'
     compile 'android.arch.persistence.room:runtime:' + rootProject.archRoomVersion
     annotationProcessor 'android.arch.persistence.room:compiler:' + rootProject.archRoomVersion
+    compile 'com.android.support:design:26.1.0'
     testCompile 'junit:junit:4.12'
     implementation files('libs/YouTubeAndroidPlayerApi.jar')
 }

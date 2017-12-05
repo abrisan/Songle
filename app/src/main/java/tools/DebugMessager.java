@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,30 @@ public class DebugMessager
     {
         return ourInstance;
     }
+
+    private class MethodTracer
+    {
+        private List<String> messages = new ArrayList<>();
+
+        public <T> void addMethodCall(T caller, String method, String... message)
+        {
+            messages.add(
+                    "[" + caller.getClass().getSimpleName() + " " + method + "] with message " + Arrays.toString(message) + "\n"
+            );
+        }
+
+        public void flush()
+        {
+            StringBuilder builder = new StringBuilder();
+            this . messages . forEach(
+                    builder::append
+            );
+            _print_with_title("MethodTracer", builder.toString());
+            this . messages .clear();
+        }
+    }
+
+    private MethodTracer tracer = new MethodTracer();
 
     private DebugMessager()
     {
@@ -104,6 +129,16 @@ public class DebugMessager
                         (varargs.length == 0 ? "" : Arrays.toString(varargs)) +
                         "]"
         );
+    }
+
+    public <T> void debug_method_trace(T caller, String method, String...varargs)
+    {
+        this . tracer . addMethodCall(caller, method, varargs);
+    }
+
+    public void flushMethodTrace()
+    {
+        this . tracer . flush();
     }
 
     public <T> void debug_output(Stream<T> str)

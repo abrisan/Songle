@@ -65,14 +65,8 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void _init_location_services()
     {
-        console . debug_trace(this, "_init_location_services");
-
         if (this . mGoogleApiClient == null)
         {
-            console . debug_trace(this,
-                    "_init_location_services",
-                    "null"
-            );
             this . mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -115,21 +109,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationChanged(Location location)
             {
-                console . info("Location changed");
                 String found = _found_word(location);
-                if (found == null)
-                {
-                    console . info("NO WORD FOUND");
-                }
-                else
-                {
-                    console . info(
-                            String.format(
-                                    "FOUND WORD %s",
-                                    found
-                            )
-                    );
-                }
             }
 
             @Override
@@ -348,7 +328,6 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults)
     {
-        console . debug_trace(this, "onRequestPermissionsResult");
         switch (requestCode) {
             case GlobalConstants.SONGLE_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0
@@ -371,26 +350,23 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnected(@Nullable Bundle bundle)
     {
-        console . debug_trace(this, "onConnected");
         _setupLocationListener();
     }
 
     @Override
     public void onConnectionSuspended(int i)
     {
-        console . debug_trace(this, "onConnectionSuspended");
+
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
-        console . debug_trace(this, "onConnectionFailed");
+
     }
 
     private void havePlacemarksCallback(Placemarks placemarks)
     {
-        console . debug_trace(this, "havePlacemarksCallback");
-        console . debug_output(placemarks.getDescriptors());
         this . placemarks = placemarks;
         this . icon_cache = new HashMap<>();
 

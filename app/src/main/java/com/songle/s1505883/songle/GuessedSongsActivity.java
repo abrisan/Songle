@@ -3,7 +3,6 @@ package com.songle.s1505883.songle;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -36,6 +36,7 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
     private DebugMessager console = DebugMessager.getInstance();
     private YouTubePlayer player;
 
+    // Simple lambda for playing a youtube film, given the link
     private Consumer<String> play_film_id = x ->
     {
         String[] split_string = x.split("/");
@@ -43,18 +44,16 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
         player.cueVideo(id);
     };
 
-    private Parcelable state = null;
-
+    // Youtube API key
     private final String API_KEY = "AIzaSyAXRSnzTtv4JbxbBES3crh2JSwPQdwsKwc";
 
-
+    // Data adapter for CardView
     private class GuessedSongsAdapter extends RecyclerView.Adapter<GuessedSongsAdapter.ViewHolder>
     {
-        Random generator = new Random(0);
 
         private List<SongDescriptor> dataset;
 
-        List<ViewHolder> cards = new ArrayList<>();
+        List<WeakReference<ViewHolder>> cards = new ArrayList<>();
 
         public void updateDataset(List<SongDescriptor> new_data)
         {
@@ -70,7 +69,6 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
             private String link;
             private int original_color;
 
-            private final int id;
 
             ViewHolder(View v)
             {
@@ -79,9 +77,13 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
                 this.artistName = v.findViewById(R.id.guessedArtistName);
                 this.parent_card = (CardView) v.findViewById(R.id.guessed_card_view);
                 this.original_color = parent_card.getSolidColor();
+
+                // Set the on click listener
                 v.setOnClickListener((view) -> select());
-                this.id = generator.nextInt();
-                cards.add(this);
+
+                // Add this ref to a list of cards so we know what to deselect
+                // use weak ref such that we don't leak
+                cards.add(new WeakReference<>(this));
             }
 
             void setLink(String link)
@@ -89,15 +91,13 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
                 this.link = link;
             }
 
-            private int getId()
-            {
-                return this.id;
-            }
-
+            // Just some fancy coloring
             private void select()
             {
-                cards.forEach(ViewHolder::deselect);
+                // Make sure nothing is selected
+                cards.forEach(x -> x . get() . deselect());
 
+                // Set each colors
                 this.parent_card.setCardBackgroundColor(
                         Color.parseColor(
                                 GlobalConstants.COLOR_LIGHT_GRAY
@@ -117,13 +117,14 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
                         )
                 );
 
+                // Play the film
                 play_film_id.accept(this.link);
             }
 
 
             private void deselect()
             {
-
+                // Go back
                 this.parent_card.setCardBackgroundColor(
                         this.original_color
                 );
@@ -154,6 +155,7 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
         @Override
         public GuessedSongsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
         {
+            // instantiate the card view
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.player_card, parent, false);
             return new ViewHolder(v);
@@ -162,8 +164,11 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
         @Override
         public void onBindViewHolder(final GuessedSongsAdapter.ViewHolder holder, int position)
         {
+            // grab the song
             SongDescriptor songAtI = this.dataset.get(position);
 
+
+            // set the relevant things
             holder.artistName.setText(
                     songAtI.getArtistName()
             );
@@ -190,6 +195,7 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guessed_songs);
+
         // Initialise the card view
         guessedSongsView = (RecyclerView) findViewById(R.id.guessedSongs_recycler_view);
         guessedSongsView.setHasFixedSize(true);
@@ -200,6 +206,9 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
         gAdapter = new GuessedSongsAdapter(new ArrayList<>());
         guessedSongsView.setAdapter(gAdapter);
 
+
+        // Read from the database
+        // Varargs creation is safe, the List is read-only
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this), this::receivedGuessedSongListCallback
         ).execute(GlobalLambdas.getGuessedDescriptors);

@@ -37,7 +37,6 @@ public class DownloadConsumer extends AsyncTask<URL, Void, Void>
     @Override
     protected Void doInBackground(URL... strings)
     {
-        DebugMessager.getInstance().debug_output(strings[0]);
         cons . accept(
                 ctxt.get(),
                 GlobalLambdas.get_stream.apply(strings[0])

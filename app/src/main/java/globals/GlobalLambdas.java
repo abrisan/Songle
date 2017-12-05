@@ -110,7 +110,6 @@ public class GlobalLambdas
 
             if (new_timestamp == null)
             {
-                DebugMessager.getInstance().info("NO NEW SONGS ADDED");
                 return;
             }
 
@@ -163,7 +162,6 @@ public class GlobalLambdas
                     lvl
             );
 
-            DebugMessager . getInstance() . error(Integer.toString(lvl));
 
             db . locationDao() . nukeDB();
 
@@ -171,14 +169,6 @@ public class GlobalLambdas
             {
                 try
                 {
-                    try
-                    {
-                        DebugMessager.getInstance().error(x.serialise());
-                    }
-                    catch (JSONException e)
-                    {
-                        e . printStackTrace();
-                    }
                     db.locationDao().insertLocations(x);
                 }
                 catch (android.database.sqlite.SQLiteConstraintException e)

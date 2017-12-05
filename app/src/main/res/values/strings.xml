@@ -19,12 +19,27 @@
 
         \n\n4.) Trade Mode : You can trade between undiscovered words of different categories
     </string>
-    <string name="facebook_app_id">187182171759107</string>
+    <string name="facebook_app_id">126192774723300</string>
     <string name="fb_login_protocol_scheme">fb187182171759107</string>
     <string name="smart_mode">Smart Mode</string>
     <string name="smart_mode_description">
         When using smart mode, you will be given a short test to determine your musical knowledge
         and we use Machine Learning to determine which words you will get to play with.
+    </string>
+    <string name="beginner_description">
+        When in beginner mode, you will be given all the available clues to make the guess
+    </string>
+    <string name="champion">
+        When in champion mode, you will be given only very basic clues about the lyircs
+    </string>
+    <string name="expert">
+        When in expert mode, you will be given some more interesting clues about the song
+    </string>
+    <string name="intermediate">
+        When in intermediate mode, the most relevant clues will be hidden from you
+    </string>
+    <string name="advanced">
+        When in advanced mode, a balance between relevant and generic clues will be shown to you.
     </string>
     <string name="diffculty">Difficulty</string>
     <string name="finish">Finish</string>

@@ -41,10 +41,10 @@
         android:textColor="@color/colorWhite"
         android:textSize="25sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/imageView2"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
+        app:layout_constraintBottom_toTopOf="@+id/main_profile_pic"
+        app:layout_constraintEnd_toEndOf="@+id/main_profile_pic"
         app:layout_constraintHorizontal_bias="0.526"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
+        app:layout_constraintStart_toStartOf="@+id/main_profile_pic"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"/>
 
@@ -69,19 +69,19 @@
         android:textSize="25sp"/>
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/main_profile_pic"
         android:layout_width="107dp"
         android:layout_height="106dp"
         android:layout_marginBottom="28dp"
         android:layout_marginStart="4dp"
         android:src="@mipmap/ic_launcher"
-        app:layout_constraintBottom_toTopOf="@+id/textView4"
-        app:layout_constraintEnd_toEndOf="@+id/textView4"
+        app:layout_constraintBottom_toTopOf="@+id/main_user_name"
+        app:layout_constraintEnd_toEndOf="@+id/main_user_name"
         app:layout_constraintHorizontal_bias="0.3"
-        app:layout_constraintStart_toStartOf="@+id/textView4"/>
+        app:layout_constraintStart_toStartOf="@+id/main_user_name"/>
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/main_user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="136dp"

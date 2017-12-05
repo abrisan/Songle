@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import database.AppDatabase;
@@ -17,6 +18,7 @@ import database.DatabaseReadTask;
 import datastructures.CurrentGameDescriptor;
 import datastructures.GuessedWords;
 
+import datastructures.SongDescriptor;
 import globals.GlobalConstants;
 import globals.GlobalLambdas;
 import tools.DebugMessager;
@@ -30,6 +32,7 @@ public class WordlistActivity extends Activity
     private DebugMessager console = DebugMessager.getInstance();
     private WordlistActivity thisPtr = this;
     private CurrentGameDescriptor des;
+    private SongDescriptor song_des;
 
 
     private class WordlistAdapter extends RecyclerView.Adapter<WordlistAdapter.ViewHolder>
@@ -145,20 +148,20 @@ public class WordlistActivity extends Activity
         ).execute(GlobalLambdas.gw.apply(
                 this . des . getSongNumber()
         ));
+
+
     }
 
     public void guessClicked(View v)
     {
         Intent showPopup = new Intent(this, GuessSongActivity.class);
-        startActivity(showPopup);
+        showPopup.putExtra("artist", this.song_des.getArtistName());
+        showPopup.putExtra("name", this.song_des.getSongName());
+        startActivityForResult(showPopup, 1);
     }
 
     public void gotGuessedWordsCallback(List<GuessedWords> guessedWords)
     {
-        console . debug_trace(this, "gotGuessedWordsCallback");
-
-        console . debug_output_json(guessedWords);
-
         wordlistView = (RecyclerView) findViewById(R.id.wordlist_recycler_view);
         wordlistView . setHasFixedSize(true);
 
@@ -167,6 +170,18 @@ public class WordlistActivity extends Activity
 
         wAdapter = new WordlistAdapter(guessedWords);
         wordlistView . setAdapter(wAdapter);
+
+        this . song_des = des.getDescriptor();
+        console . debug_output_json(Collections.singletonList(this.song_des));
+    }
+
+    @Override
+    public void onActivityResult(int result, int code, Intent data)
+    {
+
+        console . debug_output(result);
+        console . debug_output(code);
+        console . debug_output(data.getExtras().getBoolean("result"));
     }
 
 
