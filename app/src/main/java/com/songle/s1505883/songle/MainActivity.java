@@ -1,7 +1,9 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,6 +24,7 @@ import java.net.URL;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
+import database.DatabaseWriteTask;
 import datastructures.CurrentGameDescriptor;
 import datastructures.SongDescriptor;
 import datastructures.SongLyricsDescriptor;
@@ -120,7 +123,7 @@ public class MainActivity extends Activity
     {
         Intent move_to_wordlist = new Intent(this, WordlistActivity.class);
         move_to_wordlist . putExtra(GlobalConstants.gameDescriptor, this . des);
-        startActivity(move_to_wordlist);
+        startActivityForResult(move_to_wordlist, 1);
     }
 
     public void guessedClicked(View view)
@@ -144,7 +147,7 @@ public class MainActivity extends Activity
         {
             new DownloadConsumer(
                     this,
-                    GlobalLambdas.getMaps.apply(this . des . getMapNumber(), lyricsDescriptor)
+                    GlobalLambdas.getMaps.apply(this . des . getMapNumber(), this.des.getSongNumber(), lyricsDescriptor)
             ).execute(
                     this . des . getCurrentDifficulty()
             );
@@ -165,7 +168,7 @@ public class MainActivity extends Activity
                     this::onLyricsDownloaded
             ).execute(
                     DownloadLinks.getSongLyricsLinkForSong(
-                            this.des.getSongNumber() + 1
+                            this.des.getSongNumber()
                     )
             );
         }
@@ -204,8 +207,11 @@ public class MainActivity extends Activity
                 "Beginner"
         );
 
-        if (userURI != null)
+        console . debug_output(this.difficulty);
+
+        if (userURI != null && !userURI.equals("null"))
         {
+            console . debug_output(userURI);
             Uri uri = Uri.parse(userURI);
             ((ImageView) this . findViewById(R.id.main_profile_pic)).setImageURI(
                     uri
@@ -247,6 +253,7 @@ public class MainActivity extends Activity
             console . error("Got null from query");
         }
         this . des = new CurrentGameDescriptor(des, this . difficulty);
+        saveState();
         onGameChanged();
     }
 
@@ -268,7 +275,7 @@ public class MainActivity extends Activity
                     getString(R.string.current_game_index),
                     this . des . getDescriptor() . serialise()
             );
-            editor.apply();
+            editor.commit();
         }
         catch (JSONException e)
         {
@@ -280,6 +287,7 @@ public class MainActivity extends Activity
     public void onPause()
     {
         super.onPause();
+        console . debug_trace(this, "onPause");
         saveState();
     }
 
@@ -287,7 +295,59 @@ public class MainActivity extends Activity
     public void onStop()
     {
         super.onStop();
+        console . debug_trace(this, "onStop");
         saveState();
+    }
+
+    public void queryNewGame()
+    {
+        new AlertDialog.Builder(this)
+                .setTitle("New gane")
+                .setMessage("Would you like to start a new game?")
+                .setPositiveButton("Yes", this::onWantNewGame)
+                .setNegativeButton("No", this::onNoNewGame)
+                .show();
+    }
+
+    public void onWantNewGame(DialogInterface dialog, int which)
+    {
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                this::setDes
+        ).execute(t -> t.songDao().getRandomUnguessedSong());
+    }
+
+    public void onNoNewGame(DialogInterface dialog, int which)
+    {
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        console . debug_trace(this, "onActivityResult");
+        if (requestCode == 1)
+        {
+            if (resultCode == Activity.RESULT_OK)
+            {
+                if (data.getExtras().getBoolean("guessed"))
+                {
+                    updateSongDb();
+                }
+            }
+        }
+    }
+
+    public void updateSongDb()
+    {
+        SongDescriptor currentDes = this . des . getDescriptor();
+        currentDes.setGuessed(true);
+
+        new DatabaseWriteTask<SongDescriptor>(
+                AppDatabase.getAppDatabase(this),
+                (db, song) -> db.songDao().updateSong(song),
+                this::queryNewGame
+        ).execute(currentDes);
     }
 
 }

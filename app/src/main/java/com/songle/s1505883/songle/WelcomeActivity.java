@@ -50,11 +50,6 @@ public class WelcomeActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        getSharedPreferences(
-                getString(R.string.shared_prefs_key),
-                Context.MODE_PRIVATE
-        ).edit().clear().commit();
-
         loginButton = (LoginButton) findViewById(R.id.login_button);
         callbackManager = CallbackManager.Factory.create();
 

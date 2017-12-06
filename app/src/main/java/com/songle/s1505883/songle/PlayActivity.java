@@ -104,6 +104,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     private LocationListener _getListener()
     {
+        console . debug_trace(this, "_getListener()");
         return new LocationListener()
         {
             @Override
@@ -136,6 +137,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void _setupLocationListener()
     {
+        console . debug_trace(this, "_setupLocationListener");
         LocationManager manager = (LocationManager) this . getSystemService(
                 Context.LOCATION_SERVICE
         );
@@ -278,11 +280,14 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
         this . des = getIntent() . getParcelableExtra(GlobalConstants.gameDescriptor);
 
+        console . debug_json_singleton(this . des . getDescriptor());
+        console . debug_output(this . des . getDiffs());
+
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::havePlacemarksCallback
         ).execute(
-                GlobalLambdas.plm.apply(this . des . getMapNumber())
+                GlobalLambdas.plm.apply(this . des . getMapNumber(), this . des . getSongNumber())
         );
     }
 
