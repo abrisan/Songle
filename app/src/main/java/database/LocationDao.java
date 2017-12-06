@@ -3,6 +3,7 @@ package database;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -31,7 +32,13 @@ public interface LocationDao
     List<Pair> countUndiscoveredWordsByCategory(int id);
 
     @Query(Queries.getRandomLocations)
-    List<LocationDescriptor> getTradeWords(int cat, int cat2, int id);
+    List<LocationDescriptor> getTradeWords(int id, String... cats);
+
+    @Query(Queries.getDiscoveredLocations)
+    List<LocationDescriptor> getDiscoveredLocations();
+
+    @Update
+    void updateLocation(LocationDescriptor des);
 
     @Insert
     void insertLocations(LocationDescriptor... locs);

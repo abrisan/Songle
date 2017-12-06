@@ -126,8 +126,7 @@ public class DebugMessager
                         caller.getClass().getSimpleName() +
                         " " +
                         method +
-                        (varargs.length == 0 ? "" : Arrays.toString(varargs)) +
-                        "]"
+                        "] with args " + (varargs.length == 0 ? "" : Arrays.toString(varargs))
         );
     }
 

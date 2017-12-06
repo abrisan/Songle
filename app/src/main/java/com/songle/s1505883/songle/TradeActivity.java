@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.persistence.room.Database;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
+import database.DatabaseWriteTask;
 import datastructures.CurrentGameDescriptor;
 import datastructures.LocationDescriptor;
 import datastructures.Pair;
@@ -232,14 +234,7 @@ public class TradeActivity extends Activity
                 GlobalConstants.gameDescriptor
         );
 
-        new DatabaseReadTask<>(
-                AppDatabase.getAppDatabase(this),
-                this::_init_vars
-        ).execute(
-                db -> db . locationDao() . countUndiscoveredWordsByCategory(
-                        des.getSongNumber()
-                )
-        );
+        updateInformation();
 
         try
         {
@@ -279,12 +274,104 @@ public class TradeActivity extends Activity
 
     public void commitTradeClicked(View view)
     {
+        List<String> keys = new ArrayList<>();
+        keys.addAll(this.trades.keySet());
 
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                this::haveLocs
+        ).execute(
+                db -> db . locationDao() . getTradeWords(
+                        this.des.getSongNumber(),
+                        (String[]) keys.toArray()
+                )
+        );
     }
 
     @Override
     public void onActivityResult(int request, int resultCode, Intent data)
     {
+        if (request == 1)
+        {
+            if (Activity.RESULT_OK == resultCode)
+            {
+                try
+                {
+                    int qtyTraded = data.getExtras().getInt("src_qty");
+                    add_trading_intent(qtyTraded);
+                }
+                catch (NullPointerException e)
+                {
+                    e . printStackTrace();
+                }
 
+            }
+        }
     }
+
+    private void add_trading_intent(int sourceQuantity)
+    {
+        String from = new String(fromString);
+        String to = new String(toString);
+
+        double conversion_factor = GlobalConstants.getRate(from, to);
+        this.trades.put(from, -1 * sourceQuantity);
+        this.trades.put(from, (int) conversion_factor * sourceQuantity + 1);
+    }
+
+    public void updateInformation()
+    {
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                this::_init_vars
+        ).execute(
+                db -> db . locationDao() . countUndiscoveredWordsByCategory(
+                        des.getSongNumber()
+                )
+        );
+    }
+
+    public void haveLocs(List<LocationDescriptor> locs)
+    {
+        Map<String, List<LocationDescriptor>> groupedLocs = Algorithm.groupBy(
+                locs,
+                LocationDescriptor::getCategory,
+                x -> x
+        );
+
+        List<LocationDescriptor> toUpdate = new ArrayList<>();
+
+        for (String key : this . trades . keySet())
+        {
+            int factor = this . trades .get(key);
+            int iter_limit = factor < 0 ? -1 * factor : factor;
+
+            List<LocationDescriptor> db_locs = groupedLocs.get(key);
+
+            iter_limit = iter_limit < db_locs.size() ? iter_limit : db_locs.size();
+
+            for (int i = 0 ; i < iter_limit ; ++i)
+            {
+                LocationDescriptor current_des = db_locs.get(i);
+                if (factor < 0)
+                {
+                    current_des.setAvailable(false);
+                }
+                else
+                {
+                    current_des.setDiscovered(true);
+                }
+                toUpdate.add(current_des);
+            }
+        }
+
+        new DatabaseWriteTask<List<LocationDescriptor>>(
+                AppDatabase.getAppDatabase(this),
+                (db, lst) -> lst.forEach(x -> db . locationDao() . updateLocation(x)),
+                this::updateInformation
+        ).execute(
+                toUpdate
+        );
+    }
+
 }

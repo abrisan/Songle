@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -52,18 +53,18 @@ public class MainActivity extends Activity
 
         _load_from_prefs();
 
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                (list) -> console . debug_output(list)
+        ).execute(db -> db . locationDao() . getDiscoveredLocations());
+
         if (savedInstanceState == null)
         {
             console . debug_method_trace(this, "onCreate", "savedInstanceState is null");
             this . des = CurrentGameDescriptor.getInstanceForContext(this);
             if (this . des == null)
             {
-                /*Snackbar.make(
-                        this.findViewById(R.id.activity_main),
-                        "No game saved. Selecting random game",
-                        10
-                );
-                */
+                Toast.makeText(this, "No game saved. Selecting random game", Toast.LENGTH_SHORT).show();
                 console . debug_method_trace(this, "onCreate", "creating random game");
                 new DatabaseReadTask<>(
                         AppDatabase.getAppDatabase(this),
@@ -326,6 +327,10 @@ public class MainActivity extends Activity
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         console . debug_trace(this, "onActivityResult");
+        new DatabaseReadTask<>(
+                AppDatabase.getAppDatabase(this),
+                (list) -> console . debug_output(list)
+        ).execute(db -> db . locationDao() . getDiscoveredLocations());
         if (requestCode == 1)
         {
             if (resultCode == Activity.RESULT_OK)

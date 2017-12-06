@@ -28,16 +28,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
+import database.DatabaseWriteTask;
 import datastructures.CurrentGameDescriptor;
 import datastructures.LocationDescriptor;
 import datastructures.Placemarks;
 import android.location.LocationListener;
 import android.view.View;
+import android.widget.Toast;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,7 +56,8 @@ import tools.DebugMessager;
 
 public class PlayActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener
 {
 
     private GoogleMap mMap;
@@ -62,23 +67,35 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private CurrentGameDescriptor des;
+    private List<LocationDescriptor> buffer = new ArrayList<>();
+    private Stack<Runnable> runnableStack = new Stack<>();
+    private LocationManager manager;
+    private final int TOAST_DURATION = 100;
+    private int picked_up = 0;
 
     private void _init_location_services()
     {
+        console . debug_trace(this, "_init_location_services");
         if (this . mGoogleApiClient == null)
         {
+            console . debug_trace(this, "_init_location_services", "apiClient is null");
             this . mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
                     .build();
+
+            this . mGoogleApiClient . connect();
         }
+
     }
 
 
-    private String _found_word(Location loc)
+    private List<LocationDescriptor> _found_word(Location loc)
     {
         float[] results = new float[1];
+        List<LocationDescriptor> ret_list = new ArrayList<>();
+        double min_distance = Double.MAX_VALUE;
         for (LocationDescriptor l : placemarks . getDescriptors())
         {
             String[] placemark = l . getCoordinates() . split(",");
@@ -94,61 +111,36 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
                     pos . longitude,
                     results);
 
+            min_distance = Math.min(min_distance, results[0]);
+
             if (results[0] < GlobalConstants.SONGLE_DISTANCE_WORD_GUESSED_TOLERANCE)
             {
-                return l . getWord();
+                ret_list.add(l);
             }
         }
-        return null;
-    }
-
-    private LocationListener _getListener()
-    {
-        console . debug_trace(this, "_getListener()");
-        return new LocationListener()
+        console . debug_output(String.format("Min distance was %f", min_distance));
+        if (min_distance < 12.5)
         {
-            @Override
-            public void onLocationChanged(Location location)
-            {
-                String found = _found_word(location);
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras)
-            {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider)
-            {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider)
-            {
-
-            }
-
-
-        };
+            this . picked_up++;
+        }
+        return ret_list;
     }
+
 
     private void _setupLocationListener()
     {
         console . debug_trace(this, "_setupLocationListener");
-        LocationManager manager = (LocationManager) this . getSystemService(
+        this . manager = (LocationManager) this . getSystemService(
                 Context.LOCATION_SERVICE
         );
 
         Runnable locationManagerConsumer = () ->
         {
-            manager . requestLocationUpdates(
+            this . manager . requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     (long) 0,
                     (float) 0.0,
-                    _getListener()
+                    this
             );
         };
 
@@ -157,6 +149,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void _requestLocationPermission(Runnable runnable)
     {
+        console . debug_trace(this, "requestLocationPermission");
         int check = ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -164,6 +157,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (check != PackageManager.PERMISSION_GRANTED)
         {
+            this . runnableStack . push(runnable);
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{
@@ -173,6 +167,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         }
         else
         {
+            console . debug_trace(this, "_requestLocationPermission", "else");
             runnable . run();
         }
     }
@@ -295,11 +290,11 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onStart()
     {
+        super . onStart();
         if (this . mGoogleApiClient != null)
         {
             this . mGoogleApiClient . connect();
         }
-        super . onStart();
     }
 
     @Override
@@ -310,7 +305,26 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             this . mGoogleApiClient . disconnect();
         }
 
+        if (this . buffer . size() > 0)
+        {
+            writeBufferToDb();
+        }
+
         super . onStop();
+    }
+
+    @Override
+    public void onPause()
+    {
+        super . onPause();
+
+        synchronized(this)
+        {
+            if (this . buffer . size() > 0)
+            {
+                writeBufferToDb();
+            }
+        }
     }
 
     @Override
@@ -340,7 +354,10 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
                     try
                     {
-                        this . mMap . setMyLocationEnabled(true);
+                        if (this . runnableStack . size() > 0)
+                        {
+                            this . runnableStack . pop() . run();
+                        }
                     }
                     catch (SecurityException e)
                     {
@@ -355,6 +372,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnected(@Nullable Bundle bundle)
     {
+        console . debug_trace(this, "onConnected");
         _setupLocationListener();
     }
 
@@ -384,4 +402,64 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public void handleFoundWord(@NonNull List<LocationDescriptor> des)
+    {
+        des . forEach(x -> {
+            x.setDiscovered(true);
+            x.setAvailable(false);
+        });
+
+        this . buffer . addAll(des);
+
+        if (this . buffer . size() > 10)
+        {
+            console . debug_output_json(this.buffer);
+            writeBufferToDb();
+        }
+    }
+
+    public void writeBufferToDb()
+    {
+        new DatabaseWriteTask<List<LocationDescriptor>>(
+                AppDatabase.getAppDatabase(this),
+                (db, lst) -> lst . forEach(x -> db.locationDao().updateLocation(x)),
+                this.buffer::clear
+        ).execute(this.buffer);
+    }
+
+    @Override
+    public void onLocationChanged(Location location)
+    {
+        console . debug_trace(this, "onLocationChanged");
+        List<LocationDescriptor> des = _found_word(location);
+        console . debug_output("Would have found " + this.picked_up + " so far.");
+        if (des.size() > 0)
+        {
+            Toast.makeText(
+                    this,
+                    "Found words " + Algorithm.join(des, LocationDescriptor::getWord, ","),
+                    Toast.LENGTH_SHORT
+            ).show();
+            console . debug_trace(this, "onLocationChanged", "nonNull");
+            handleFoundWord(des);
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras)
+    {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider)
+    {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider)
+    {
+
+    }
 }

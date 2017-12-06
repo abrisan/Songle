@@ -7,10 +7,11 @@ import android.arch.persistence.room.PrimaryKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import tools.PrettyPrinter;
 import tools.WordLocationParser;
 
 @Entity(tableName = "locations", primaryKeys = {"coordinates", "word", "category", "songId", "map_number"})
-public class LocationDescriptor
+public class LocationDescriptor implements PrettyPrinter
 {
     @ColumnInfo
     private String word;
@@ -116,6 +117,8 @@ public class LocationDescriptor
         ret.put("category", this.category);
         ret.put("coordinates", this.coordinates);
         ret.put("mapNumber", this . map_number);
+        ret.put("available", this . available);
+        ret.put("discovered", this . discovered);
 
         return ret.toString(2);
     }

@@ -41,10 +41,6 @@ public class GlobalConstants
         categoryColors . put("VeryInteresting", "#CB4335");
 
         conversionRates.add(
-                new CTPair("Unclassified", "Boring", 2)
-        );
-
-        conversionRates.add(
                 new CTPair("Boring", "NotBoring", 4)
         );
 
@@ -62,6 +58,10 @@ public class GlobalConstants
     {
         from = from.toLowerCase();
         to = to.toLowerCase();
+        if (from.equals("unclassified") || to.equals("unclassified"))
+        {
+            return 1.0;
+        }
         for (CTPair p : conversionRates)
         {
             if (p.cat_1.equals(from) && p.cat_2.equals(to))
@@ -85,7 +85,7 @@ public class GlobalConstants
     }
 
     public final static int SONGLE_PERMISSIONS_REQUEST_LOCATION = 1;
-    public final static float SONGLE_DISTANCE_WORD_GUESSED_TOLERANCE = 7;
+    public final static float SONGLE_DISTANCE_WORD_GUESSED_TOLERANCE = (float) 12.5;
 
     public final static String[] difficulty_levels = new String[]{
             "Beginner",

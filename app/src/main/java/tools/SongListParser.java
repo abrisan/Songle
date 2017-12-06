@@ -117,7 +117,10 @@ public class SongListParser
         }
         finally
         {
-            inp . close();
+            if (inp != null)
+            {
+                inp . close();
+            }
         }
     }
 }
