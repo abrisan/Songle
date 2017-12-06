@@ -16,6 +16,22 @@ public class GlobalConstants
     public final static String defaultCategory = "Unkown Category";
     public final static Map<String, String> categoryColors = new HashMap<String, String>();
 
+    private static class CTPair
+    {
+        String cat_1;
+        String cat_2;
+        int conversionRate;
+        CTPair(String cat_1, String cat_2, int conversionRate)
+        {
+            this . cat_1 = cat_1.toLowerCase();
+            this . cat_2 = cat_2.toLowerCase();
+            this . conversionRate = conversionRate;
+        }
+    }
+
+    private final static List<CTPair> conversionRates = new ArrayList<>();
+
+
     static
     {
         categoryColors . put("Interesting", "#138D75");
@@ -23,6 +39,49 @@ public class GlobalConstants
         categoryColors . put("NotBoring", "#E59866");
         categoryColors . put("Unclassified", "#A569BD");
         categoryColors . put("VeryInteresting", "#CB4335");
+
+        conversionRates.add(
+                new CTPair("Unclassified", "Boring", 2)
+        );
+
+        conversionRates.add(
+                new CTPair("Boring", "NotBoring", 4)
+        );
+
+        conversionRates.add(
+                new CTPair("NotBoring", "Interesting", 8)
+        );
+
+        conversionRates.add(
+                new CTPair("Interesting", "VeryInteresting", 16)
+        );
+
+    }
+
+    public static double getRate(String from, String to)
+    {
+        from = from.toLowerCase();
+        to = to.toLowerCase();
+        for (CTPair p : conversionRates)
+        {
+            if (p.cat_1.equals(from) && p.cat_2.equals(to))
+            {
+                return 1 / p.conversionRate;
+            }
+            else if(p.cat_2.equals(from) && p.cat_1.equals(to))
+            {
+                return p.conversionRate;
+            }
+            else if(p.cat_1.equals(from))
+            {
+                return 1 / (p.conversionRate * getRate(p.cat_2, to));
+            }
+            else if(p.cat_2.equals(from))
+            {
+                return p.conversionRate * getRate(p.cat_1, to);
+            }
+        }
+        return -1;
     }
 
     public final static int SONGLE_PERMISSIONS_REQUEST_LOCATION = 1;
@@ -111,5 +170,6 @@ public class GlobalConstants
     public static final String userName = "userName";
     public static final String imageURI = "userURI";
     public static final String onlineImageURL = "onlineURL";
+
 
 }
