@@ -242,7 +242,7 @@ public class GlobalLambdas
                 ).collect(Collectors.toList());
     };
 
-    public final static Algorithm.QuadFunction<AppDatabase, Integer, Integer, Integer, List<LocationDescriptor>> getActualLocations =
-            (db, cat, cat2, id) -> db . locationDao() . getTradeWords(cat, cat2, id);
+    public final static Algorithm.TriFunction<AppDatabase, Integer, List<String>, List<LocationDescriptor>> getActualLocations =
+            (db, id, cats) -> db . locationDao() . getTradeWords(id, (String[]) cats.toArray());
 
 }
