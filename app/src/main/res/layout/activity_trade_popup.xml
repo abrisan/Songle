@@ -1,57 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.songle.s1505883.songle.TradePopupActivity">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/top_view"
-        android:text="Trade Words"/>
-
-
-    <EditText
-        android:id="@+id/source_trade_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/top_view"
-        android:hint="0"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="to"
-        android:layout_toRightOf="@id/source_trade_count"
-        android:layout_alignBaseline="@id/source_trade_count"
-        android:id="@+id/to"
-        android:layout_below="@id/top_view"/>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/dest_trade_count"
-        android:hint="0"
-        android:layout_toRightOf="@id/to"
-        android:layout_below="@id/top_view"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="The conversion rate is 10 notboring for 1 boring"
-        android:id="@+id/conversion_rate"
-        android:layout_below="@id/dest_trade_count"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/conversion_rate"
-        android:text="Trade!"
-        android:onClick="makeTradeClicked"/>
-
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
