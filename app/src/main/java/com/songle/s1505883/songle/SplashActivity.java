@@ -109,7 +109,11 @@ public class SplashActivity extends Activity
     {
         try
         {
-            new DownloadConsumer(this, GlobalLambdas.initialCheckAndDownload).execute(
+            new DownloadConsumer(
+                    this,
+                    GlobalLambdas.initialCheckAndDownload,
+                    this::haveDownloaded
+            ).execute(
                     DownloadLinks.getSongListLink()
             );
         }
@@ -121,7 +125,10 @@ public class SplashActivity extends Activity
         {
             throw e;
         }
+    }
 
+    private void haveDownloaded()
+    {
         Intent transition;
 
         if (_shouldDisplayWelcome())
