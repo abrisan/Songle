@@ -23,7 +23,9 @@ public class Queries
     public final static String getGuessedWords = "SELECT * FROM locations WHERE discovered=1 AND songId = :id";
     public final static String countByCategory = "SELECT category, COUNT(*) FROM locations WHERE discovered = 0 AND songId= :id GROUP BY category";
     public final static String getRandomLocations =
-            "SELECT * FROM locations WHERE discovered=0 AND available=1 AND (category = :cat OR category = :cat2) AND songId = :id ORDER BY RANDOM()";
+            "SELECT * FROM locations WHERE discovered=0 AND available=1 AND songId = :id AND category IN (:cats) ORDER BY RANDOM()";
+    public final static String getDiscoveredLocations =
+            "SELECT * FROM locations WHERE discovered = 1";
 
 
 
