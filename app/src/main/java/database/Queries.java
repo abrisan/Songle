@@ -16,12 +16,15 @@ public class Queries
     public final static String getAllLocations =
             "SELECT * FROM locations where map_number = :map_number LIMIT 10";
     public final static String getUndiscoveredLocations =
-            "SELECT * FROM locations WHERE discovered=0 AND available=1 AND map_number = :map_number";
+            "SELECT * FROM locations WHERE discovered=0 AND available=1 AND map_number = :map_number AND songId = :id";
     public final static String countUndiscoveredLocations =
             "SELECT COUNT(*) FROM locations WHERE discovered=0 AND available=1";
     public final static String nukeLocationsDB = "DELETE FROM locations WHERE 1 = 1";
-    public final static String getGuessedWords = "SELECT * FROM locations WHERE discovered=0 AND songId = :id";
+    public final static String getGuessedWords = "SELECT * FROM locations WHERE discovered=1 AND songId = :id";
     public final static String countByCategory = "SELECT category, COUNT(*) FROM locations WHERE discovered = 0 AND songId= :id GROUP BY category";
+    public final static String getRandomLocations =
+            "SELECT * FROM locations WHERE discovered=0 AND available=1 AND (category = :cat OR category = :cat2) AND songId = :id ORDER BY RANDOM()";
+
 
 
     // Queries for MarkerDao

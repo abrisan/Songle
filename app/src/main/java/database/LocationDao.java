@@ -13,7 +13,7 @@ import datastructures.Pair;
 public interface LocationDao
 {
     @Query(Queries.getUndiscoveredLocations)
-    List<LocationDescriptor> getUndiscoveredActiveLocations(int map_number);
+    List<LocationDescriptor> getUndiscoveredActiveLocations(int map_number, int id);
 
     @Query(Queries.countUndiscoveredLocations)
     int countUndiscoveredLocations();
@@ -29,6 +29,9 @@ public interface LocationDao
 
     @Query(Queries.countByCategory)
     List<Pair> countUndiscoveredWordsByCategory(int id);
+
+    @Query(Queries.getRandomLocations)
+    List<LocationDescriptor> getTradeWords(int cat, int cat2, int id);
 
     @Insert
     void insertLocations(LocationDescriptor... locs);
