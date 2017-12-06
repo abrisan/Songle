@@ -107,6 +107,8 @@ public class GuessSongActivity extends Activity
                     GlobalConstants.COLOR_GREEN_HEX
             );
 
+            finish();
+
         }
         else
         {

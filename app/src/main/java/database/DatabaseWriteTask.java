@@ -11,6 +11,7 @@ public class DatabaseWriteTask<T> extends AsyncTask<T, Void, Void>
     private AppDatabase db;
     private final DebugMessager console = DebugMessager.getInstance();
     private BiConsumer<AppDatabase, T> operation;
+    private Runnable callback;
 
     public DatabaseWriteTask(AppDatabase db, BiConsumer<AppDatabase, T> operation)
     {
@@ -18,11 +19,26 @@ public class DatabaseWriteTask<T> extends AsyncTask<T, Void, Void>
         this . operation = operation;
     }
 
+    public DatabaseWriteTask(AppDatabase db, BiConsumer<AppDatabase, T> operation, Runnable callback)
+    {
+        this(db, operation);
+        this . callback = callback;
+    }
+
     @Override
     protected Void doInBackground(T... voids)
     {
         this . operation . accept(this . db, voids[0]);
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void t)
+    {
+        if (this . callback != null)
+        {
+            this . callback . run();
+        }
     }
 
 }

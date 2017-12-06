@@ -50,7 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/conversion_rate"
-        android:text="Trade!"/>
+        android:text="Trade!"
+        android:onClick="makeTradeClicked"/>
 
 
 </RelativeLayout>

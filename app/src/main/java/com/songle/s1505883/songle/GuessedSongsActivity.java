@@ -207,6 +207,11 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
         guessedSongsView.setAdapter(gAdapter);
 
 
+        new DatabaseReadTask<List<SongDescriptor>>(
+                AppDatabase.getAppDatabase(this),
+                console::debug_output_json
+        ).execute(GlobalLambdas.getAllDescriptors);
+
         // Read from the database
         // Varargs creation is safe, the List is read-only
         new DatabaseReadTask<>(
@@ -220,6 +225,7 @@ public class GuessedSongsActivity extends YouTubeBaseActivity
 
     private void receivedGuessedSongListCallback(List<SongDescriptor> des)
     {
+        console.debug_output_json(des);
         List<SongDescriptor> toAdd = des . size() == 0 ? GlobalConstants.placeholderVideos : des;
         ((GuessedSongsAdapter) this.gAdapter).updateDataset(toAdd);
     }

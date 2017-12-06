@@ -67,9 +67,7 @@ public class CurrentGameDescriptor implements Parcelable
         );
 
         String diffLevel = prefs.getString(
-                ctxt.getString(
-                        R.string.difficulty_level
-                ),
+                GlobalConstants.diffKey,
                 GlobalConstants.difficulty_levels[0]
         );
 
@@ -103,7 +101,14 @@ public class CurrentGameDescriptor implements Parcelable
             throw new IllegalStateException("Unkown difficulty");
         }
 
+        console . debug_output(5 - index);
+
         return 5 - index;
+    }
+
+    public List<String> getDiffs()
+    {
+        return this . difficulties;
     }
 
     public URL getCurrentDifficulty()
@@ -121,7 +126,7 @@ public class CurrentGameDescriptor implements Parcelable
             throw new IllegalStateException("Unkown difficulty");
         }
         return DownloadLinks.getMapLinkForSongForMapNumber(
-                this .songNumber + 1,
+                this .songNumber,
                 5 - index
         );
     }

@@ -143,5 +143,7 @@
     <string name="difficulty_level">diff_level</string>
     <string name="current_game_index">cur_game_idx</string>
 
+    <string name="commitTrade">Commit Trade</string>
+
 
 </resources>

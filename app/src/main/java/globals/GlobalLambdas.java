@@ -62,7 +62,6 @@ public class GlobalLambdas
     public static final BiConsumer<AppDatabase, List<SongDescriptor>> insertSongsConsumer =
             (db, l) ->
             {
-                db.songDao().nukeDB();
                 l.forEach(x ->
                 {
                     try
@@ -135,6 +134,9 @@ public class GlobalLambdas
     public static final Function<AppDatabase, List<SongDescriptor>> getGuessedDescriptors =
             db -> db .songDao() . getGuessedSongs();
 
+    public static final Function<AppDatabase, List<SongDescriptor>> getAllDescriptors =
+            db -> db . songDao() . getAll();
+
     public static final Function<InputStream, SongLyricsDescriptor> getLyrics = is -> {
         try
         {
@@ -147,7 +149,7 @@ public class GlobalLambdas
         }
     };
 
-    public static final BiFunction<Integer, SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (lvl, des) -> (ctxt, is) -> {
+    public static final Algorithm.TriFunction<Integer, Integer, SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (lvl, id, des) -> (ctxt, is) -> {
         List<LocationDescriptor> r_value_1 = new ArrayList<>();
         List<MarkerDescriptor> r_value_2 = new ArrayList<>();
         AppDatabase db = AppDatabase.getAppDatabase(ctxt);
@@ -159,7 +161,8 @@ public class GlobalLambdas
                     des,
                     r_value_1,
                     r_value_2,
-                    lvl
+                    lvl,
+                    id
             );
 
 
@@ -219,9 +222,9 @@ public class GlobalLambdas
         }
     };
 
-    public final static Function<Integer, Function<AppDatabase, Placemarks>> plm = lvl -> db ->
+    public final static BiFunction<Integer, Integer, Function<AppDatabase, Placemarks>> plm = (lvl, id) -> db ->
         new Placemarks(
-                db . locationDao() . getUndiscoveredActiveLocations(lvl),
+                db . locationDao() . getUndiscoveredActiveLocations(lvl, id),
                 db . markerDao() . getAllMarkers()
         );
 
@@ -239,5 +242,7 @@ public class GlobalLambdas
                 ).collect(Collectors.toList());
     };
 
+    public final static Algorithm.QuadFunction<AppDatabase, Integer, Integer, Integer, List<LocationDescriptor>> getActualLocations =
+            (db, cat, cat2, id) -> db . locationDao() . getTradeWords(cat, cat2, id);
 
 }

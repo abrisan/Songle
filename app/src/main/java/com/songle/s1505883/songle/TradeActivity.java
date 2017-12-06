@@ -21,6 +21,7 @@ import java.util.Map;
 import database.AppDatabase;
 import database.DatabaseReadTask;
 import datastructures.CurrentGameDescriptor;
+import datastructures.LocationDescriptor;
 import datastructures.Pair;
 import globals.GlobalConstants;
 import tools.Algorithm;
@@ -33,6 +34,7 @@ public class TradeActivity extends Activity
     private Map<String, Integer> existingWords;
     private List<String> existingWordsList;
     private Map<String, Integer> trades;
+    private List<LocationDescriptor> loc_buffer;
 
     private RecyclerView catsView;
     private RecyclerView.Adapter cAdapter;
@@ -40,6 +42,9 @@ public class TradeActivity extends Activity
 
     private CategoryListAdapter.ViewHolder from;
     private CategoryListAdapter.ViewHolder to;
+
+    private String fromString;
+    private String toString;
 
     private CurrentGameDescriptor des;
 
@@ -74,6 +79,7 @@ public class TradeActivity extends Activity
                     else if (to == this)
                     {
                         to = null;
+                        toString = null;
                         deselect();
                     }
                     else if (from != null && to != null) {}
@@ -108,6 +114,15 @@ public class TradeActivity extends Activity
                 this . categoryCount . setTextColor(
                         Color.parseColor(GlobalConstants.COLOR_WHITE)
                 );
+
+                if (is_from)
+                {
+                    fromString = this.s_categoryNameView;
+                }
+                else
+                {
+                    toString = this.s_categoryNameView;
+                }
             }
 
             void deselect()
@@ -123,6 +138,15 @@ public class TradeActivity extends Activity
                 this . categoryCount . setTextColor(
                         Color.parseColor(GlobalConstants.COLOR_BLACK)
                 );
+
+                if (is_from)
+                {
+                    fromString = null;
+                }
+                else
+                {
+                    toString = null;
+                }
             }
         }
 
@@ -150,6 +174,8 @@ public class TradeActivity extends Activity
             holder . categoryCount . setText(
                     count
             );
+
+            holder.s_categoryNameView = category;
         }
 
         @Override
@@ -181,8 +207,8 @@ public class TradeActivity extends Activity
         this . trades = new HashMap<>();
 
         _init_cardview();
-    }
 
+    }
 
     private void _init_cardview()
     {
@@ -227,7 +253,38 @@ public class TradeActivity extends Activity
 
     public void mkTradeClicked(View view)
     {
+        console.debug_output(fromString);
+        console.debug_output(toString);
+        if (fromString == null && toString == null)
+        {
+            return;
+        }
+
         Intent make_trade = new Intent(this, TradePopupActivity.class);
-        startActivity(make_trade);
+
+        console . debug_output(fromString);
+        Integer available = this.existingWords.get(fromString);
+
+
+        make_trade.putExtra("from", fromString);
+        make_trade.putExtra("to", toString);
+        make_trade.putExtra("available", available);
+        make_trade.putExtra("rate", GlobalConstants.getRate(
+                fromString,
+                toString
+        ));
+
+        startActivityForResult(make_trade, 1);
+    }
+
+    public void commitTradeClicked(View view)
+    {
+
+    }
+
+    @Override
+    public void onActivityResult(int request, int resultCode, Intent data)
+    {
+
     }
 }

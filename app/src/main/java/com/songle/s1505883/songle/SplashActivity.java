@@ -1,13 +1,19 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Debug;
 
 import java.net.MalformedURLException;
+
+import database.AppDatabase;
+import database.DatabaseReadTask;
+import database.DatabaseWriteTask;
 import globals.GlobalLambdas;
 import globals.DownloadLinks;
 import tools.DebugMessager;
@@ -32,10 +38,14 @@ public class SplashActivity extends Activity
             DebugMessager.getInstance().error("Setting new shared prefs");
             SharedPreferences.Editor editor = prefs.edit();
             editor . putBoolean(FIRST_LAUNCH_KEY, false);
-            editor . apply();
+            if (!editor . commit())
+            {
+                throw new RuntimeException("Could not save first launch to persistent storage");
+            }
         }
 
         DebugMessager.getInstance().error(String.valueOf(is_first_launch));
+        DebugMessager.getInstance().error(String.valueOf(prefs.getBoolean(FIRST_LAUNCH_KEY, true)));
 
         return is_first_launch;
     }
@@ -47,6 +57,56 @@ public class SplashActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        queryNewGame();
+
+    }
+
+    public void queryNewGame()
+    {
+        new AlertDialog.Builder(this)
+                .setTitle("New gane")
+                .setMessage("Would you like to erase the sharedprefs?")
+                .setPositiveButton("Yes", this::onWantNewGame)
+                .setNegativeButton("No", this::onNoNewGame)
+                .show();
+    }
+
+    public void onWantNewGame(DialogInterface dialog, int which)
+    {
+        getSharedPreferences(
+                getString(
+                        R.string.shared_prefs_key
+                ),
+                Context.MODE_PRIVATE
+        ).edit().clear().commit();
+
+        try
+        {
+            new DatabaseWriteTask<>(
+                    AppDatabase.getAppDatabase(this),
+                    (db, x) ->
+                    {
+                        db.songDao().nukeDB();
+                        db.locationDao().nukeDB();
+                    }
+            ).execute((Void) null);
+
+            continueWorkflow();
+        }
+        catch (Exception e)
+        {
+            e . printStackTrace();
+        }
+
+    }
+
+    public void onNoNewGame(DialogInterface dialog, int which)
+    {
+        continueWorkflow();
+    }
+
+    public void continueWorkflow()
+    {
         try
         {
             new DownloadConsumer(this, GlobalLambdas.initialCheckAndDownload).execute(
@@ -61,7 +121,6 @@ public class SplashActivity extends Activity
         {
             throw e;
         }
-
 
         Intent transition;
 

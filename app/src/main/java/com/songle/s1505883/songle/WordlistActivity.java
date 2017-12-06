@@ -3,6 +3,7 @@ package com.songle.s1505883.songle;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -173,16 +174,43 @@ public class WordlistActivity extends Activity
 
         this . song_des = des.getDescriptor();
         console . debug_output_json(Collections.singletonList(this.song_des));
+
+        _set_response(false);
     }
 
     @Override
     public void onActivityResult(int result, int code, Intent data)
     {
-
-        console . debug_output(result);
-        console . debug_output(code);
-        console . debug_output(data.getExtras().getBoolean("result"));
+        console . debug_trace(this, "onActivityResult");
+        if (result == 1)
+        {
+            console . debug_trace(this, "onActivityResult", "result is 1");
+            if (code == Activity.RESULT_OK)
+            {
+                console . debug_trace(this, "onActivityResult", "code is ok");
+                if (data.getExtras().getBoolean("accepted"))
+                {
+                    console . debug_trace(this, "onActivityResult", "user guessed correctly");
+                    _set_response(true);
+                    finish();
+                }
+            }
+        }
     }
 
+    public void _set_response(boolean guessed)
+    {
+        Intent data = new Intent();
+        data.putExtra("guessed", guessed);
+
+        if (getParent() == null)
+        {
+            setResult(Activity.RESULT_OK, data);
+        }
+        else
+        {
+            getParent().setResult(Activity.RESULT_OK, data);
+        }
+    }
 
 }
