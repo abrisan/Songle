@@ -1,10 +1,13 @@
 package tools;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -149,5 +152,37 @@ public class Algorithm
     public static interface QuadFunction<T1, T2, T3, T4 , R>
     {
         public R apply(T1 t1, T2 t2, T3 t3, T4 t4);
+    }
+
+
+    public static <T> String join(Stream<T> objs, String joiner)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        Set<String> unique_reps = new HashSet<>();
+
+        objs.forEach(x -> unique_reps.add(x . toString()));
+
+        unique_reps . forEach(x -> {
+            builder . append(x);
+            builder . append(" ");
+            builder . append(joiner);
+            builder . append(" ");
+        });
+
+        builder . delete(builder.length() - joiner.length() - 1, builder.length());
+
+        return builder . toString();
+    }
+
+
+    public static <T> String join(Collection<T> objs, String joiner)
+    {
+        return join(objs.stream(), joiner);
+    }
+
+    public static <T, K> String join(Collection<T> objs, Function<T, K> key, String joiner)
+    {
+        return join(objs.stream().map(key), joiner);
     }
 }
