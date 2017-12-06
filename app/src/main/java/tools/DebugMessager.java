@@ -159,4 +159,16 @@ public class DebugMessager
             }
         }));
     }
+
+    public <T extends PrettyPrinter> void debug_json_singleton(T elem)
+    {
+        try
+        {
+            debug_output(elem.serialise());
+        }
+        catch(JSONException e)
+        {
+            e . printStackTrace();
+        }
+    }
 }

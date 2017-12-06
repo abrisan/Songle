@@ -112,9 +112,7 @@ public class SongListParser
             }
             else
             {
-                _parse_input(parser, r_value);
-                return timestamp;
-                // return null;
+                return null;
             }
         }
         finally

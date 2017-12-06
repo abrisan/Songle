@@ -140,4 +140,14 @@ public class Algorithm
 
         return distance / target_length < 0.3;
     }
+
+    public static interface TriFunction<T1, T2, T3, R>
+    {
+        public R apply(T1 t1, T2 t2, T3 t3);
+    }
+
+    public static interface QuadFunction<T1, T2, T3, T4 , R>
+    {
+        public R apply(T1 t1, T2 t2, T3 t3, T4 t4);
+    }
 }

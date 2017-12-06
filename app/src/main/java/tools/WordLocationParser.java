@@ -138,14 +138,18 @@ public class WordLocationParser
                                      SongLyricsDescriptor descriptor,
                                      List<LocationDescriptor> r_value,
                                      List<MarkerDescriptor> r_value_2,
-                                     int map_number)
+                                     int map_number,
+                                     int song_id)
             throws XmlPullParserException, IOException
     {
         parser . require(XmlPullParser.START_TAG, null, "Document");
 
         MarkerDescriptor descBuffer = new MarkerDescriptor();
+
         LocationDescriptor locBuffer = new LocationDescriptor();
+
         locBuffer . setMap_number(map_number);
+        locBuffer . setSongId(song_id);
 
         while (parser . next() != XmlPullParser.END_DOCUMENT)
         {
@@ -189,7 +193,8 @@ public class WordLocationParser
                              SongLyricsDescriptor descriptor,
                              List<LocationDescriptor> r_value_1,
                              List<MarkerDescriptor> r_value_2,
-                             int map_number)
+                             int map_number,
+                             int song_id)
             throws IOException, XmlPullParserException
     {
         try
@@ -204,7 +209,7 @@ public class WordLocationParser
 
             parser . nextTag();
 
-            _parse_input(parser, descriptor, r_value_1, r_value_2, map_number);
+            _parse_input(parser, descriptor, r_value_1, r_value_2, map_number, song_id);
         }
         finally
         {
