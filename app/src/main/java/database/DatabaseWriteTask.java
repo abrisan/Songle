@@ -8,6 +8,8 @@ import tools.DebugMessager;
 
 public class DatabaseWriteTask<T> extends AsyncTask<T, Void, Void>
 {
+    // A generic DB read task
+
     private AppDatabase db;
     private final DebugMessager console = DebugMessager.getInstance();
     private BiConsumer<AppDatabase, T> operation;

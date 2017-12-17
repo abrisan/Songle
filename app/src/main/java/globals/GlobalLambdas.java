@@ -40,6 +40,7 @@ import tools.WordLocationParser;
 public class GlobalLambdas
 {
 
+    // A lambda for getting a stream, given a url
     public static final Function<URL, InputStream> get_stream = (url) -> {
         try
         {
@@ -59,6 +60,7 @@ public class GlobalLambdas
         }
     };
 
+    // insert songs into database
     public static final BiConsumer<AppDatabase, List<SongDescriptor>> insertSongsConsumer =
             (db, l) ->
             {
@@ -70,6 +72,7 @@ public class GlobalLambdas
                     }
                     catch (android.database.sqlite.SQLiteConstraintException e)
                     {
+                        // not worth it to see if it exists beforehand
                         DebugMessager.getInstance().error(
                                 "Trying to insert duplicate key " +
                                         x.getNumber() +
@@ -83,9 +86,10 @@ public class GlobalLambdas
                 });
             };
 
-
+    // download and check inital things
     public static final BiConsumer<Context, InputStream> initialCheckAndDownload = (ctxt, inputStream) ->
     {
+        // we know that this will not run on the UI thread
         try
         {
             List<SongDescriptor> r_value = new ArrayList<>();
@@ -156,6 +160,7 @@ public class GlobalLambdas
 
         try
         {
+            // parse the placemarjs
             WordLocationParser.parse(
                     is,
                     des,
@@ -166,8 +171,7 @@ public class GlobalLambdas
             );
 
 
-            db . locationDao() . nukeDB();
-
+            // insert locations into DB
             r_value_1 . forEach(x ->
             {
                 try
@@ -192,6 +196,7 @@ public class GlobalLambdas
                 }
             });
 
+            // insert makers into DB
             r_value_2 . forEach(x ->
             {
                 try
@@ -222,12 +227,14 @@ public class GlobalLambdas
         }
     };
 
+    // get placemarks
     public final static BiFunction<Integer, Integer, Function<AppDatabase, Placemarks>> plm = (lvl, id) -> db ->
         new Placemarks(
                 db . locationDao() . getUndiscoveredActiveLocations(lvl, id),
                 db . markerDao() . getAllMarkers()
         );
 
+    // get words grouped by category
     public final static Function<Integer, Function<AppDatabase, List<GuessedWords>>> gw = s_id ->
             db -> {
                 List<LocationDescriptor> locs =  db . locationDao() . getGuessedWords(s_id);
@@ -241,8 +248,4 @@ public class GlobalLambdas
                         key -> new GuessedWords(key, grouped.get(key))
                 ).collect(Collectors.toList());
     };
-
-    public final static Algorithm.Functional.TriFunction<AppDatabase, Integer, List<String>, List<LocationDescriptor>> getActualLocations =
-            (db, id, cats) -> db . locationDao() . getTradeWords(id, (String[]) cats.toArray());
-
 }
