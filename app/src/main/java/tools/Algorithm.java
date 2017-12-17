@@ -19,8 +19,10 @@ public class Algorithm
 {
     private static final DebugMessager console = DebugMessager.getInstance();
 
+    // Collections related algorithms
     public static class Collections
     {
+        // equivalent to python's collections.Counter
         public static <T> Map<T, Integer> counter(Stream<T> stream)
         {
             Map<T, Integer> ret_value = new HashMap<>();
@@ -50,6 +52,7 @@ public class Algorithm
             return counter(list . stream() . map(transform));
         }
 
+        // algorithm to group by a given predicate
         public static <T, F, K> Map<F, List<K>> groupBy(List<T> input, Function<T, F> value, Function<T, K> key)
         {
             Map<F, List<K>> ret_value = new HashMap<>();
@@ -72,6 +75,7 @@ public class Algorithm
             return ret_value;
         }
 
+        // simple linear search (really, why does the JDK not have a lin search????)
         public static <T> int linearSearch(T[] arr, T target)
         {
             for (int i = 0 ; i < arr.length; ++i)
@@ -84,6 +88,7 @@ public class Algorithm
             return -1;
         }
 
+        // search in a given map
         public static <K, V> V searchInMap(Map<K, V> map, K key, Function<K, K> transform, V def)
         {
             for (K k : map.keySet())
@@ -100,6 +105,8 @@ public class Algorithm
 
     public static class StringUtils
     {
+        // compute levenshtein distance
+        // taken from https://stackoverflow.com/questions/26214206/edit-distance-solution-for-large-strings/26214493
         private static int _levenshtein(String word1, String word2)
         {
             int len1 = word1.length();
@@ -151,6 +158,7 @@ public class Algorithm
             return distance / target_length < 0.3;
         }
 
+        // equivalent to str.join in python
         public static <T> String join(Stream<T> objs, String joiner)
         {
             StringBuilder builder = new StringBuilder();
@@ -186,15 +194,15 @@ public class Algorithm
 
     public static class Functional
     {
+        // tri-function interface. can be used to gen lambdas of the type
+        // (T1, T2, T3) -> R
         public static interface TriFunction<T1, T2, T3, R>
         {
             public R apply(T1 t1, T2 t2, T3 t3);
         }
 
-        /*
-        TriFunction<Integer, Integer, Integer, String> func = (a, b, c) -> String.valueOf(a);
-         */
-
+        // quad function interface. can be used to gen lambdas of the type
+        // (T1, T2, T3, T4) -> R
         public static interface QuadFunction<T1, T2, T3, T4 , R>
         {
             public R apply(T1 t1, T2 t2, T3 t3, T4 t4);
@@ -203,6 +211,11 @@ public class Algorithm
 
     public static class Graph
     {
+        // specialised graph search for trading.
+        // the reason we need graph search is that in the case when we have
+        // a trade that "jumps" categories, the way to compute it is a linear graph
+        // might be slightly over-complicated for the moment
+        // but allows a great deal of easy expandability in the future.
         public static TradeDescriptor.ActualTrade searchGraph(
                 List<TradeDescriptor> graph, String from, String to, int fromQty)
         {

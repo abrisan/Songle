@@ -10,6 +10,7 @@ import java.util.function.Function;
 public class DatabaseReadTask<T> extends AsyncTask<Function<AppDatabase, T>, Void, T>
 {
 
+    // A generic database read task
     private AppDatabase db;
     private Consumer<T> callback;
 

@@ -197,6 +197,7 @@ public class TradeActivity extends Activity
         this . existingWords = new HashMap<>();
         this . existingWordsList = new ArrayList<>();
 
+        // init the instance vars
         pairs . forEach(
                 x -> {
                     this.existingWords.put(
@@ -265,6 +266,7 @@ public class TradeActivity extends Activity
         Integer available = this.existingWords.get(fromString);
         Integer toAvailable = this.existingWords.get(toString);
 
+        // get the rate
         TradeDescriptor.ActualTrade rate = GlobalConstants.getRate(fromString, toString);
 
         if (rate == null || toAvailable == null)
@@ -273,7 +275,7 @@ public class TradeActivity extends Activity
         }
 
 
-
+        // put relevant info in intent
         make_trade.putExtra("from", fromString);
         make_trade.putExtra("to", toString);
         make_trade.putExtra("available", available);
@@ -302,6 +304,7 @@ public class TradeActivity extends Activity
             keys_array[i] = keys.get(i);
         }
 
+        // read the locations (need objects so that we can update them later)
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::haveLocs
@@ -326,6 +329,7 @@ public class TradeActivity extends Activity
                 {
                     if (!data.getExtras().getBoolean("success"))
                     {
+                        // unsuccesful trade
                         Toast.makeText(
                                 this, "Unsuccesful trade. Please try again",
                                 Toast.LENGTH_SHORT
@@ -333,6 +337,7 @@ public class TradeActivity extends Activity
                     }
                     else
                     {
+                        // valid trade, add the intent
                         add_trading_intent(
                                 data.getExtras().getInt("from"),
                                 data.getExtras().getInt("to")
@@ -382,10 +387,12 @@ public class TradeActivity extends Activity
 
     public void updateInformation()
     {
+        // method for updating vars used in the cardview
         if (this . trades != null)
         {
             this . trades . clear();
         }
+
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::_init_vars
@@ -398,6 +405,7 @@ public class TradeActivity extends Activity
 
     public void haveLocs(List<LocationDescriptor> locs)
     {
+        // group locations by category
         Map<String, List<LocationDescriptor>> groupedLocs = Algorithm.Collections.groupBy(
                 locs,
                 LocationDescriptor::getCategory,
@@ -407,6 +415,7 @@ public class TradeActivity extends Activity
         console . debug_output_json(locs);
         console . debug_map(this.trades);
 
+        // a list of locations that need to be updated
         List<LocationDescriptor> toUpdate = new ArrayList<>();
 
         for (String key : this . trades . keySet())
@@ -433,6 +442,7 @@ public class TradeActivity extends Activity
             }
         }
 
+        // update the location
         new DatabaseWriteTask<List<LocationDescriptor>>(
                 AppDatabase.getAppDatabase(this),
                 (db, lst) -> lst.forEach(x -> db . locationDao() . updateLocation(x)),

@@ -32,9 +32,13 @@ public class SmartModeActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_smart_mode);
+
+        // importances as computed from NLTK
         this . word_importances = ImportanceParser.parse(this);
-        this . console . debug_map(this . word_importances);
+
         this . ordered_words = new ArrayList<>();
+
+        // create a list of words that is ordered
         this . ordered_words.addAll(
                 this . word_importances . keySet()
         );
@@ -52,6 +56,7 @@ public class SmartModeActivity extends Activity
 
     public void onCancelClicked(View view)
     {
+        // cancel, set beginner as difficulty
         getSharedPreferences(
                 getString(R.string.shared_prefs_key),
                 Context.MODE_PRIVATE
@@ -64,6 +69,7 @@ public class SmartModeActivity extends Activity
 
     public void onNextWordClicked(View view)
     {
+        // present new word
         if (current_index + 1 < ordered_words.size())
         {
             ++current_index;
@@ -77,6 +83,7 @@ public class SmartModeActivity extends Activity
 
     public void onGuessClicked(View view)
     {
+        // use the guess song activity, functionlity should be the same
         Intent move = new Intent(this, GuessSongActivity.class);
 
         move . putExtra("artist", "abba");
@@ -99,10 +106,12 @@ public class SmartModeActivity extends Activity
                 {
                     if (!data.getExtras().getBoolean("accepted"))
                     {
+                        // incorrect guess
                         Toast.makeText(this, "Wrong guess", Toast.LENGTH_SHORT).show();
                     }
                     else
                     {
+                        // handle a correct guess
                         _guessed();
                     }
                 }
@@ -116,20 +125,21 @@ public class SmartModeActivity extends Activity
 
     public void _guessed()
     {
+        // see where we stopped
         int progress = (int) Math.ceil(
                 ((double) this . current_index) / (this . ordered_words . size()) * 100
         );
 
         int index = 4 - (int) Math.ceil(((double) progress) / 25);
 
-        console . error(String.valueOf(index));
-        console . error(GlobalConstants.difficulty_levels[index]);
+        // put the relevant difficulty
 
         getSharedPreferences(
                 getString(R.string.shared_prefs_key),
                 Context.MODE_PRIVATE
         ).edit().putString(GlobalConstants.diffKey, GlobalConstants.difficulty_levels[index]).commit();
 
+        // move to the game
         startActivity(
                 new Intent(this, MainActivity.class)
         );

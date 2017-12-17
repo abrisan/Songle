@@ -24,7 +24,7 @@ import tools.DownloadConsumer;
 public class SplashActivity extends Activity
 {
 
-    private final static String FIRST_LAUNCH_KEY = "firstLaunch";
+    public final static String FIRST_LAUNCH_KEY = "firstLaunch";
 
     private boolean _shouldDisplayWelcome()
     {
@@ -33,23 +33,8 @@ public class SplashActivity extends Activity
                 Context.MODE_PRIVATE
         );
 
-        boolean is_first_launch = prefs.getBoolean(FIRST_LAUNCH_KEY, true);
-
-        if (is_first_launch)
-        {
-            DebugMessager.getInstance().error("Setting new shared prefs");
-            SharedPreferences.Editor editor = prefs.edit();
-            editor . putBoolean(FIRST_LAUNCH_KEY, false);
-            if (!editor . commit())
-            {
-                throw new RuntimeException("Could not save first launch to persistent storage");
-            }
-        }
-
-        DebugMessager.getInstance().error(String.valueOf(is_first_launch));
-        DebugMessager.getInstance().error(String.valueOf(prefs.getBoolean(FIRST_LAUNCH_KEY, true)));
-
-        return is_first_launch;
+        // check if it is the first launch (i.e. do we need to display the onboarding)
+        return prefs.getBoolean(FIRST_LAUNCH_KEY, true);
     }
 
 
@@ -59,17 +44,14 @@ public class SplashActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        new DatabaseReadTask<List<SongDescriptor>>(
-                AppDatabase.getAppDatabase(this),
-                t -> DebugMessager.getInstance().debug_output_json(t)
-        ).execute(db -> db . songDao() . getAll());
+        // queryNewGame(); // uncomment for debug purposes
 
-        queryNewGame();
-
+        this . continueWorkflow();
     }
 
     public void queryNewGame()
     {
+        // Create an alert dialg (only for debug purposes)
         new AlertDialog.Builder(this)
                 .setTitle("New gane")
                 .setMessage("Would you like to erase the sharedprefs?")
@@ -80,6 +62,7 @@ public class SplashActivity extends Activity
 
     public void onWantNewGame(DialogInterface dialog, int which)
     {
+        // Clear the shared preferences
         getSharedPreferences(
                 getString(
                         R.string.shared_prefs_key
@@ -87,6 +70,7 @@ public class SplashActivity extends Activity
                 Context.MODE_PRIVATE
         ).edit().clear().commit();
 
+        // Nuke the DB
         try
         {
             new DatabaseWriteTask<>(

@@ -3,6 +3,7 @@ package com.songle.s1505883.songle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Debug;
 import android.view.View;
@@ -34,6 +35,7 @@ public class DifficultyActivity extends Activity
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
             {
+                // Set the respective descriptive test for each difficulty level
                 name . setText(GlobalConstants.difficulty_levels[progress]);
                 currentDifficulty = GlobalConstants.difficulty_levels[progress];
                 switch(currentDifficulty)
@@ -120,13 +122,27 @@ public class DifficultyActivity extends Activity
 
     public void finishClicked(View view)
     {
-        getSharedPreferences(
-                getString(R.string.shared_prefs_key),
+        // Get a shared prefs editor
+        SharedPreferences.Editor prefs_editor = getSharedPreferences(
+                getString(
+                        R.string.shared_prefs_key
+                ),
                 Context.MODE_PRIVATE
-        ).edit().putString(GlobalConstants.diffKey, this.currentDifficulty).commit();
+        ).edit();
 
-        console . error(this . currentDifficulty);
 
+        // put the difficulty
+        prefs_editor.putString(GlobalConstants.diffKey, this.currentDifficulty);
+
+        // save the fact that we have completed the onboarding process
+        prefs_editor . putBoolean(SplashActivity.FIRST_LAUNCH_KEY, false);
+
+        if (!prefs_editor . commit())
+        {
+            throw new RuntimeException("Could not save first launch to persistent storage");
+        }
+
+        // Do we show the test or the game?
         if (this . currentDifficulty . equals("Smart Mode"))
         {
             startActivity(

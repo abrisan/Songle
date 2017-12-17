@@ -78,6 +78,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         console . debug_trace(this, "_init_location_services");
         if (this . mGoogleApiClient == null)
         {
+            // create the client
             console . debug_trace(this, "_init_location_services", "apiClient is null");
             this . mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -85,6 +86,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
                     .addApi(LocationServices.API)
                     .build();
 
+            // and connect it
             this . mGoogleApiClient . connect();
         }
 
@@ -115,13 +117,9 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (results[0] < GlobalConstants.SONGLE_DISTANCE_WORD_GUESSED_TOLERANCE)
             {
+                // add placemark if distance is lower than threshold
                 ret_list.add(l);
             }
-        }
-        console . debug_output(String.format("Min distance was %f", min_distance));
-        if (min_distance < 12.5)
-        {
-            this . picked_up++;
         }
         return ret_list;
     }
@@ -150,6 +148,8 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     public void _requestLocationPermission(Runnable runnable)
     {
         console . debug_trace(this, "requestLocationPermission");
+
+        // check permissoins
         int check = ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -157,7 +157,10 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (check != PackageManager.PERMISSION_GRANTED)
         {
+            // push the runnable to the stack, so that we have it
+            // after the user granted permissions
             this . runnableStack . push(runnable);
+            // request permissions
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{
@@ -167,6 +170,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         }
         else
         {
+            // we have permission, call the runnable
             console . debug_trace(this, "_requestLocationPermission", "else");
             runnable . run();
         }
@@ -174,19 +178,21 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     private Bitmap _getMarkerForCategory(String category)
     {
+        // use a cache, so we download at most the number of cats that we have
         if (this . icon_cache . containsKey(category))
         {
             return this . icon_cache . get(category);
         }
 
         final String cat = this . placemarks . getMarkerURLForCategory(category);
-        double scale = this . placemarks . getScaleForCategory(category);
 
+        // use an executor service to download the images and populate the cache
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Bitmap> result;
         Callable<Bitmap> call = () -> {
             try
             {
+                // connect and decode the input stream
                 URL conn_url = new URL(cat);
                 return BitmapFactory.decodeStream(
                         conn_url.openConnection().getInputStream()
@@ -199,6 +205,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             return null;
         };
 
+        // submit the call
         result = executor . submit(call);
 
         try
@@ -217,11 +224,13 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void _setMapBoundaries()
     {
+        // these map boundaries are predefined
         LatLngBounds bounds = new LatLngBounds(
                 new LatLng(55.941617, -3.196473),
                 new LatLng(55.947233, -3.180319)
         );
 
+        // move the camera
         this . mMap . moveCamera(
                 CameraUpdateFactory.newLatLngBounds(bounds, 0)
         );
@@ -241,9 +250,11 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
+        // transform to stream
         Stream<LocationDescriptor> s =
                 this . placemarks . getDescriptors() . stream();
 
+        // parse the placemarsk and create a stream of pairs
         Stream<Pair> points = s . map((x) -> {
            String[] split = x . getCoordinates() . split(",");
             return new Pair(new MarkerOptions()
@@ -262,6 +273,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
                     x . getWord());
         });
 
+        // use the stream to add the placemarks
         points . forEach(x ->
                 this . mMap . addMarker(x . marker) . setTag(x . word)
         );
@@ -278,6 +290,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         console . debug_json_singleton(this . des . getDescriptor());
         console . debug_output(this . des . getDiffs());
 
+        // get the current placemarks for the current game
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::havePlacemarksCallback
@@ -290,6 +303,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onStart()
     {
+        // connect the api client
         super . onStart();
         if (this . mGoogleApiClient != null)
         {
@@ -300,11 +314,13 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onStop()
     {
+        // disconnect the api client
         if (this . mGoogleApiClient != null)
         {
             this . mGoogleApiClient . disconnect();
         }
 
+        // write the buffer to the db
         if (this . buffer . size() > 0)
         {
             writeBufferToDb();
@@ -318,6 +334,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     {
         super . onPause();
 
+        // we need to synchronize this
         synchronized(this)
         {
             if (this . buffer . size() > 0)
@@ -335,6 +352,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         _setMapBoundaries();
         _addMapPoints();
 
+        // runnable for setting that we want to see the location
         Runnable set = () -> {
             googleMap . setMyLocationEnabled(true);
         };
@@ -354,6 +372,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
                     try
                     {
+                        // use a stack of runnables, in case we have multiple requests piling up
                         if (this . runnableStack . size() > 0)
                         {
                             this . runnableStack . pop() . run();
@@ -393,9 +412,12 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         this . placemarks = placemarks;
         this . icon_cache = new HashMap<>();
 
+        // init location services
         _init_location_services();
 
         setContentView(R.layout.activity_play);
+
+        // get the map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -409,6 +431,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
             x.setAvailable(false);
         });
 
+        // use a buffer, so we don't put unnecessary stress on the database
         this . buffer . addAll(des);
 
         if (this . buffer . size() > 10)
@@ -420,6 +443,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void writeBufferToDb()
     {
+        // write found words buffer to db
         new DatabaseWriteTask<List<LocationDescriptor>>(
                 AppDatabase.getAppDatabase(this),
                 (db, lst) -> lst . forEach(x -> db.locationDao().updateLocation(x)),
@@ -431,10 +455,12 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location)
     {
         console . debug_trace(this, "onLocationChanged");
+        // all locations within radius
         List<LocationDescriptor> des = _found_word(location);
         console . debug_output("Would have found " + this.picked_up + " so far.");
         if (des.size() > 0)
         {
+            // we have found some words, so show it
             Toast.makeText(
                     this,
                     "Found words " + Algorithm.StringUtils.join(des, LocationDescriptor::getWord, ","),

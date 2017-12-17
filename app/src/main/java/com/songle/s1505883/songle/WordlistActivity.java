@@ -1,6 +1,9 @@
 package com.songle.s1505883.songle;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -10,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.apache.http.impl.auth.UnsupportedDigestAlgorithmException;
 
 import java.util.Collections;
 import java.util.List;
@@ -194,6 +199,18 @@ public class WordlistActivity extends Activity
                     _set_response(true);
                     finish();
                 }
+                else
+                {
+                    if (data.getExtras().getBoolean("queryCancel"))
+                    {
+                        new AlertDialog.Builder(this)
+                                .setTitle("Give Up?")
+                                .setMessage("Would you like to give up?")
+                                .setPositiveButton("Yes", this::giveUp)
+                                .setNegativeButton("No", this::ignore)
+                                .show();
+                    }
+                }
             }
         }
     }
@@ -211,6 +228,17 @@ public class WordlistActivity extends Activity
         {
             getParent().setResult(Activity.RESULT_OK, data);
         }
+    }
+
+    private void giveUp(DialogInterface dialog, int which)
+    {
+        _set_response(true);
+        finish();
+    }
+
+    private void ignore(DialogInterface dialog, int which)
+    {
+        _set_response(false);
     }
 
 }
