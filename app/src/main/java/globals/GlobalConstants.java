@@ -5,31 +5,21 @@ import android.graphics.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import datastructures.SongDescriptor;
+import datastructures.TradeDescriptor;
 import tools.Algorithm;
+import tools.DebugMessager;
 
 public class GlobalConstants
 {
     public final static String defaultCategory = "Unkown Category";
     public final static Map<String, String> categoryColors = new HashMap<String, String>();
 
-    private static class CTPair
-    {
-        String cat_1;
-        String cat_2;
-        int conversionRate;
-        CTPair(String cat_1, String cat_2, int conversionRate)
-        {
-            this . cat_1 = cat_1.toLowerCase();
-            this . cat_2 = cat_2.toLowerCase();
-            this . conversionRate = conversionRate;
-        }
-    }
-
-    private final static List<CTPair> conversionRates = new ArrayList<>();
+    private final static List<TradeDescriptor> trade_values = new LinkedList<>();
 
 
     static
@@ -40,48 +30,47 @@ public class GlobalConstants
         categoryColors . put("Unclassified", "#A569BD");
         categoryColors . put("VeryInteresting", "#CB4335");
 
-        conversionRates.add(
-                new CTPair("Boring", "NotBoring", 4)
+        trade_values . add(
+                new TradeDescriptor("unclassified", "boring", 2, 1)
         );
 
-        conversionRates.add(
-                new CTPair("NotBoring", "Interesting", 8)
+        trade_values . add(
+                new TradeDescriptor("boring", "notboring", 4, 1)
         );
 
-        conversionRates.add(
-                new CTPair("Interesting", "VeryInteresting", 16)
+        trade_values . add(
+                new TradeDescriptor("notboring", "interesting", 8, 1)
         );
 
+        trade_values . add(
+                new TradeDescriptor("interesting", "veryinteresting", 4, 1)
+        );
     }
 
-    public static double getRate(String from, String to)
+    public static TradeDescriptor.ActualTrade getRate(String from, String to)
     {
-        from = from.toLowerCase();
-        to = to.toLowerCase();
-        if (from.equals("unclassified") || to.equals("unclassified"))
+        int fromPos = Algorithm.Collections.linearSearch(lower_word_cats, from.toLowerCase());
+        int toPos = Algorithm.Collections.linearSearch(lower_word_cats, to.toLowerCase());
+
+        if (fromPos > toPos)
         {
-            return 1.0;
+            DebugMessager.getInstance().info("Going backwards");
+            DebugMessager.getInstance().info("Query is " + from + " to " + to);
+            return Algorithm.Graph.searchGraph(trade_values, from, to, 1);
         }
-        for (CTPair p : conversionRates)
+        TradeDescriptor.ActualTrade ret_value = Algorithm.Graph.searchGraph(trade_values, to, from, 1);
+        if (ret_value != null)
         {
-            if (p.cat_1.equals(from) && p.cat_2.equals(to))
-            {
-                return 1 / p.conversionRate;
-            }
-            else if(p.cat_2.equals(from) && p.cat_1.equals(to))
-            {
-                return p.conversionRate;
-            }
-            else if(p.cat_1.equals(from))
-            {
-                return 1 / (p.conversionRate * getRate(p.cat_2, to));
-            }
-            else if(p.cat_2.equals(from))
-            {
-                return p.conversionRate * getRate(p.cat_1, to);
-            }
+            int copy = ret_value.to;
+            ret_value.to = ret_value.from;
+            ret_value.from = copy;
         }
-        return -1;
+        return ret_value;
+    }
+
+    public static TradeDescriptor.ActualTrade getRate(String from, String to, int qty)
+    {
+        return Algorithm.Graph.searchGraph(trade_values, to, from, qty);
     }
 
     public final static int SONGLE_PERMISSIONS_REQUEST_LOCATION = 1;
@@ -94,6 +83,14 @@ public class GlobalConstants
             "Expert",
             "Champion",
             "Smart Mode"
+    };
+
+    private final static String[] lower_word_cats = new String[]{
+            "unclassified",
+            "boring",
+            "notboring",
+            "interesting",
+            "veryinteresting"
     };
 
 
@@ -158,7 +155,7 @@ public class GlobalConstants
     public static int getColorFromCategory(String category)
     {
         return Color.parseColor(
-                Algorithm.searchInMap(
+                Algorithm.Collections.searchInMap(
                         categoryColors,
                         category,
                         String::toLowerCase,
