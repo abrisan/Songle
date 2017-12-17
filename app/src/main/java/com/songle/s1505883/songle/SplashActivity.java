@@ -10,10 +10,12 @@ import android.os.Bundle;
 import android.os.Debug;
 
 import java.net.MalformedURLException;
+import java.util.List;
 
 import database.AppDatabase;
 import database.DatabaseReadTask;
 import database.DatabaseWriteTask;
+import datastructures.SongDescriptor;
 import globals.GlobalLambdas;
 import globals.DownloadLinks;
 import tools.DebugMessager;
@@ -56,6 +58,11 @@ public class SplashActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        new DatabaseReadTask<List<SongDescriptor>>(
+                AppDatabase.getAppDatabase(this),
+                t -> DebugMessager.getInstance().debug_output_json(t)
+        ).execute(db -> db . songDao() . getAll());
 
         queryNewGame();
 

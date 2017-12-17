@@ -40,8 +40,8 @@ public class GuessSongActivity extends Activity
 
     private boolean isCorrectAnswer(String name, String artist)
     {
-        boolean isOk = Algorithm.shouldAccept(targetSong, name)
-                && Algorithm.shouldAccept(targetArtist, artist);
+        boolean isOk = Algorithm.StringUtils.shouldAccept(targetSong, name)
+                && Algorithm.StringUtils.shouldAccept(targetArtist, artist);
 
         Intent result = new Intent();
         result.putExtra("accepted", isOk);

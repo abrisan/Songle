@@ -20,7 +20,7 @@ public class DifficultyActivity extends Activity
     SeekBar seekBar;
     TextView name;
     TextView description;
-    String currentDifficulty = "Beginner";
+    String currentDifficulty = "Smart Mode";
 
     private final DebugMessager console = DebugMessager.getInstance();
 
@@ -125,8 +125,20 @@ public class DifficultyActivity extends Activity
                 Context.MODE_PRIVATE
         ).edit().putString(GlobalConstants.diffKey, this.currentDifficulty).commit();
 
-        startActivity(
-                new Intent(this, MainActivity.class)
-        );
+        console . error(this . currentDifficulty);
+
+        if (this . currentDifficulty . equals("Smart Mode"))
+        {
+            startActivity(
+                    new Intent(this, SmartModeActivity.class)
+            );
+        }
+        else
+        {
+            startActivity(
+                    new Intent(this, MainActivity.class)
+            );
+        }
+
     }
 }

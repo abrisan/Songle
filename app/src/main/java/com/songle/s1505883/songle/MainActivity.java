@@ -21,6 +21,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import database.AppDatabase;
@@ -98,11 +100,6 @@ public class MainActivity extends Activity
             case R.id.action_settings:
             {
                 Intent move_to_settings = new Intent(this, SettingsActivity.class);
-                move_to_settings . putExtra(SettingsActivity.EXTRA_NO_HEADERS, true);
-                move_to_settings . putExtra(
-                        SettingsActivity.EXTRA_SHOW_FRAGMENT,
-                        SettingsActivity.GeneralPreferenceFragment.class.getName()
-                );
                 startActivity(move_to_settings);
             }
             default:
@@ -209,6 +206,7 @@ public class MainActivity extends Activity
         );
 
         console . debug_output(this.difficulty);
+        console . debug_output(userName);
 
         if (userURI != null && !userURI.equals("null"))
         {
@@ -219,7 +217,7 @@ public class MainActivity extends Activity
             );
         }
 
-        if (onlineURL != null && !onlineURL.equals("null"))
+        else if (onlineURL != null && !onlineURL.equals("null"))
         {
             try
             {
@@ -242,7 +240,11 @@ public class MainActivity extends Activity
 
     private void setImageDrawable(Drawable drw)
     {
-        ((ImageView) this . findViewById(R.id.main_profile_pic)).setBackground(
+        ((ImageView) findViewById(R.id.main_profile_pic)).setImageURI(
+                null
+        );
+
+        ((ImageView) this . findViewById(R.id.main_profile_pic)).setImageDrawable(
                 drw
         );
     }
@@ -353,6 +355,14 @@ public class MainActivity extends Activity
                 (db, song) -> db.songDao().updateSong(song),
                 this::queryNewGame
         ).execute(currentDes);
+    }
+
+    @Override
+    public void onResume()
+    {
+        super . onResume();
+        console . debug_trace(this, "onResume");
+        _load_from_prefs();
     }
 
 }

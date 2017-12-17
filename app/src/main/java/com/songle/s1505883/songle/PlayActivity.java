@@ -437,7 +437,7 @@ public class PlayActivity extends FragmentActivity implements OnMapReadyCallback
         {
             Toast.makeText(
                     this,
-                    "Found words " + Algorithm.join(des, LocationDescriptor::getWord, ","),
+                    "Found words " + Algorithm.StringUtils.join(des, LocationDescriptor::getWord, ","),
                     Toast.LENGTH_SHORT
             ).show();
             console . debug_trace(this, "onLocationChanged", "nonNull");
