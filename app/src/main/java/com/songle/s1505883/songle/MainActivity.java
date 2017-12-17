@@ -44,6 +44,7 @@ public class MainActivity extends Activity
     CurrentGameDescriptor des;
     String difficulty;
     private SharedPreferences prefs;
+    private String text = "Congratulations! Would you like to start a new game?";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,13 +54,10 @@ public class MainActivity extends Activity
 
         console . debug_method_trace(this, "onCreate", "starting to eval onCreate");
 
+        // Load profile pic, user name and current song descriptor from the preferences
         _load_from_prefs();
 
-        new DatabaseReadTask<>(
-                AppDatabase.getAppDatabase(this),
-                (list) -> console . debug_output(list)
-        ).execute(db -> db . locationDao() . getDiscoveredLocations());
-
+        // handle a saved instance
         if (savedInstanceState == null)
         {
             console . debug_method_trace(this, "onCreate", "savedInstanceState is null");
@@ -87,6 +85,7 @@ public class MainActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu m)
     {
+        // inflate the menu
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.barmenu, m);
         return true;
@@ -99,6 +98,7 @@ public class MainActivity extends Activity
         {
             case R.id.action_settings:
             {
+                // move to the settings activity if user presses that button
                 Intent move_to_settings = new Intent(this, SettingsActivity.class);
                 startActivity(move_to_settings);
             }
@@ -112,6 +112,7 @@ public class MainActivity extends Activity
 
     public void playClicked(View view)
     {
+        // move to the map activity
         Intent move_to_map = new Intent(this, PlayActivity.class);
         move_to_map . putExtra(GlobalConstants.gameDescriptor, this . des);
         startActivity(move_to_map);
@@ -119,6 +120,7 @@ public class MainActivity extends Activity
 
     public void wordlistClicked(View view)
     {
+        // move to guessed words activity
         Intent move_to_wordlist = new Intent(this, WordlistActivity.class);
         move_to_wordlist . putExtra(GlobalConstants.gameDescriptor, this . des);
         startActivityForResult(move_to_wordlist, 1);
@@ -126,12 +128,14 @@ public class MainActivity extends Activity
 
     public void guessedClicked(View view)
     {
+        // move to guessed songs activity (Player)
         Intent move_to_player = new Intent(this, GuessedSongsActivity.class);
         startActivity(move_to_player);
     }
 
     public void tradeClicked(View view)
     {
+        // move to trade activity
         Intent move_to_trade = new Intent(this, TradeActivity.class);
         move_to_trade . putExtra(GlobalConstants.gameDescriptor, this . des);
         startActivity(move_to_trade);
@@ -143,6 +147,7 @@ public class MainActivity extends Activity
         console . debug_method_trace(this, "onLyricsDownloaded");
         try
         {
+            // we have the lyrics, so we cand downaload the maps
             new DownloadConsumer(
                     this,
                     GlobalLambdas.getMaps.apply(this . des . getMapNumber(), this.des.getSongNumber(), lyricsDescriptor)
@@ -161,6 +166,7 @@ public class MainActivity extends Activity
         console . debug_method_trace(this, "onGameChanged");
         try
         {
+            // download lyrics for new game, with the appropriate callback
             new DownloadFunction<>(
                     GlobalLambdas.getLyrics,
                     this::onLyricsDownloaded
@@ -179,27 +185,32 @@ public class MainActivity extends Activity
     private void _load_from_prefs()
     {
         console . debug_method_trace(this, "load_from_prefs");
+
         SharedPreferences prefs = getSharedPreferences(
                 getString(R.string.shared_prefs_key),
                 Context.MODE_PRIVATE
         );
 
+        // get the username
         String userName = prefs . getString(
                 GlobalConstants.userName,
                 "John Doe"
         );
 
-
+        // get the image uri. this will be appropriate if the user selected a pic from the
+        // gallery on the device
         String userURI = prefs . getString(
                 GlobalConstants.imageURI,
                 null
         );
 
+        // get an online url, in case the user used FB to log in
         String onlineURL = prefs . getString(
                 GlobalConstants.onlineImageURL,
                 null
         );
 
+        // get the current difficulty
         this . difficulty = prefs . getString(
                 GlobalConstants.diffKey,
                 "Beginner"
@@ -221,6 +232,7 @@ public class MainActivity extends Activity
         {
             try
             {
+                // download the image and then create the profile pic
                 new DownloadFunction<>(
                         x -> BitmapDrawable.createFromStream(x, "fbPhoto"),
                         this::setImageDrawable
@@ -251,12 +263,19 @@ public class MainActivity extends Activity
 
     private void setDes(SongDescriptor des)
     {
+        // got new random song
         if (des == null)
         {
             console . error("Got null from query");
         }
+
+        // create the game descriptor
         this . des = new CurrentGameDescriptor(des, this . difficulty);
+
+        // save the state
         saveState();
+
+        // handle the game change
         onGameChanged();
     }
 
@@ -274,6 +293,9 @@ public class MainActivity extends Activity
 
         try
         {
+            // serialise the current game descriptor and save the string
+            // in the editor
+            // there is not really a reason that we should expect this to fail.
             editor.putString(
                     getString(R.string.current_game_index),
                     this . des . getDescriptor() . serialise()
@@ -306,23 +328,39 @@ public class MainActivity extends Activity
     {
         new AlertDialog.Builder(this)
                 .setTitle("New gane")
-                .setMessage("Would you like to start a new game?")
+                .setMessage(this . text)
                 .setPositiveButton("Yes", this::onWantNewGame)
                 .setNegativeButton("No", this::onNoNewGame)
                 .show();
+
+        this . text = "Congratulations! Would you like to start a new game?";
     }
 
     public void onWantNewGame(DialogInterface dialog, int which)
     {
+        // get a random unguessed song
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::setDes
         ).execute(t -> t.songDao().getRandomUnguessedSong());
+
+        ((ImageView) findViewById(R.id.main_profile_pic)).setOnClickListener(
+                v -> console . debug_output("Clicked profile pic")
+        );
     }
 
     public void onNoNewGame(DialogInterface dialog, int which)
     {
+        Toast.makeText(
+                this,
+                "You can create a new game at any time by clicking the profile picture",
+                Toast.LENGTH_SHORT
+        ).show();
 
+        ((ImageView) findViewById(R.id.main_profile_pic)).setOnClickListener(
+                v -> this.onWantNewGame(null, 0)
+        );
+        // do nothing
     }
 
     @Override

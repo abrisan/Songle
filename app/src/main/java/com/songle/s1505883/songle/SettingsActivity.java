@@ -51,6 +51,7 @@ public class SettingsActivity extends Activity
         super.onCreate(savedState);
         setContentView(R.layout.activity_settings);
 
+        // offer the user the option of using fb login
         loginButton = (LoginButton) findViewById(R.id.login_button);
         callbackManager = CallbackManager.Factory.create();
 
@@ -58,6 +59,7 @@ public class SettingsActivity extends Activity
                 getDrawable(R.mipmap.ic_launcher)
         );
 
+        // same callback as in WelcomeActivity
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 
             @Override
@@ -132,6 +134,7 @@ public class SettingsActivity extends Activity
 
     public void onImageClick(View v)
     {
+        // select image from internal storage
         Intent i = new Intent(
                 Intent.ACTION_PICK,
                 MediaStore.Images.Media.INTERNAL_CONTENT_URI
@@ -155,25 +158,15 @@ public class SettingsActivity extends Activity
         {
             if (data != null)
             {
+                // we got an image from the gallery
+                // override the FB option if it exists
                 Uri imageUri  = data . getData();
                 if (online_profile_pic != null)
                 {
                     online_profile_pic = null;
                 }
-                Drawable drawable;
-                try
-                {
-                    InputStream inputStream = getContentResolver().openInputStream(imageUri);
 
-                    drawable = Drawable.createFromStream(inputStream, imageUri.toString() );
-
-                }
-                catch (FileNotFoundException e)
-                {
-                    drawable = getDrawable(R.mipmap.ic_launcher);
-                }
-
-                this . setImageDrawable(drawable);
+                this . setImageUri(imageUri);
 
                 this . profile_pic = imageUri;
             }
@@ -184,19 +177,30 @@ public class SettingsActivity extends Activity
         }
     }
 
+    // Setter for drawable case
     private void setImageDrawable(Drawable drawable)
     {
         ImageView view = (ImageView) this . findViewById(R.id.profile_pic_chooser);
-        view . setBackground(
+        view . setImageDrawable(
                 drawable
         );
     }
 
+    // setter for Uri case
+    private void setImageUri(Uri uri)
+    {
+        ((ImageView) findViewById(R.id.profile_pic_chooser)).setImageURI(
+                uri
+        );
+    }
+
+    // get the username
     private String _get_username()
     {
         return ((EditText) this . findViewById(R.id.userName)).getText().toString();
     }
 
+    // set the username
     private void setUserName(String name)
     {
         this . name = name;
@@ -205,6 +209,7 @@ public class SettingsActivity extends Activity
 
     private void saveStateToPrefs()
     {
+
         SharedPreferences prefs = getSharedPreferences(
                 getString(R.string.shared_prefs_key),
                 Context.MODE_PRIVATE
@@ -214,11 +219,13 @@ public class SettingsActivity extends Activity
 
         String user_name = _get_username();
 
+        // save username
         edit.putString(
                 GlobalConstants.userName,
                 user_name
         );
 
+        // set uri
         String imgURI = this . profile_pic == null ? "null" : this . profile_pic . toString();
 
         edit . putString(
@@ -226,6 +233,7 @@ public class SettingsActivity extends Activity
                 imgURI
         );
 
+        // set fb url
         String onlineURL = this . online_profile_pic == null ? "null" : this . online_profile_pic . toString();
 
         edit . putString(
@@ -233,6 +241,7 @@ public class SettingsActivity extends Activity
                 onlineURL
         );
 
+        // commit
         edit . commit();
 
         Toast.makeText(this, "Changes Saved.", Toast.LENGTH_SHORT).show();
