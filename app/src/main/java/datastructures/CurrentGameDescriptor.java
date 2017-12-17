@@ -89,7 +89,7 @@ public class CurrentGameDescriptor implements Parcelable
     public int getSongNumber() {return this .songNumber;}
     public int getMapNumber()
     {
-        int index = Algorithm.linearSearch(
+        int index = Algorithm.Collections.linearSearch(
                 GlobalConstants.difficulty_levels,
                 this.difficulties.get(
                         this.difficulties.size() - 1
@@ -114,7 +114,7 @@ public class CurrentGameDescriptor implements Parcelable
     public URL getCurrentDifficulty()
             throws MalformedURLException
     {
-        int index = Algorithm.linearSearch(
+        int index = Algorithm.Collections.linearSearch(
                 GlobalConstants.difficulty_levels,
                 this.difficulties.get(
                         this.difficulties.size() - 1
@@ -138,7 +138,7 @@ public class CurrentGameDescriptor implements Parcelable
         {
             return DownloadLinks.getMapLinkForSongForMapNumber(
                     this.songNumber,
-                    5  - Algorithm.linearSearch(GlobalConstants.difficulty_levels, difficulty)
+                    5  - Algorithm.Collections.linearSearch(GlobalConstants.difficulty_levels, difficulty)
             );
         }
         return null;

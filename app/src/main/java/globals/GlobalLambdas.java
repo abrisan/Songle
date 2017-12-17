@@ -149,7 +149,7 @@ public class GlobalLambdas
         }
     };
 
-    public static final Algorithm.TriFunction<Integer, Integer, SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (lvl, id, des) -> (ctxt, is) -> {
+    public static final Algorithm.Functional.TriFunction<Integer, Integer, SongLyricsDescriptor, BiConsumer<Context, InputStream>> getMaps = (lvl, id, des) -> (ctxt, is) -> {
         List<LocationDescriptor> r_value_1 = new ArrayList<>();
         List<MarkerDescriptor> r_value_2 = new ArrayList<>();
         AppDatabase db = AppDatabase.getAppDatabase(ctxt);
@@ -231,7 +231,7 @@ public class GlobalLambdas
     public final static Function<Integer, Function<AppDatabase, List<GuessedWords>>> gw = s_id ->
             db -> {
                 List<LocationDescriptor> locs =  db . locationDao() . getGuessedWords(s_id);
-                Map<String, List<String>> grouped = Algorithm.groupBy(
+                Map<String, List<String>> grouped = Algorithm.Collections.groupBy(
                         locs,
                         LocationDescriptor::getCategory,
                         LocationDescriptor::getWord
@@ -242,7 +242,7 @@ public class GlobalLambdas
                 ).collect(Collectors.toList());
     };
 
-    public final static Algorithm.TriFunction<AppDatabase, Integer, List<String>, List<LocationDescriptor>> getActualLocations =
+    public final static Algorithm.Functional.TriFunction<AppDatabase, Integer, List<String>, List<LocationDescriptor>> getActualLocations =
             (db, id, cats) -> db . locationDao() . getTradeWords(id, (String[]) cats.toArray());
 
 }

@@ -1,227 +1,254 @@
 package com.songle.s1505883.songle;
 
-import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
+import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.app.ActionBar;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
-import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import android.provider.MediaStore;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import java.util.List;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
-public class SettingsActivity extends PreferenceActivity
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import globals.GlobalConstants;
+import tools.DebugMessager;
+import tools.DownloadFunction;
+
+public class SettingsActivity extends Activity
 {
-    /**
-     * When starting this activity, the invoking Intent can contain this extra
-     * string to specify which fragment should be initially displayed.
-     */
-    public static final String EXTRA_SHOW_FRAGMENT = ":android:show_fragment";
+    private LoginButton loginButton;
+    private CallbackManager callbackManager;
+    private DebugMessager console = DebugMessager.getInstance();
+    private static final int PICK_IMAGE=1;
+    private Uri profile_pic;
+    private URL online_profile_pic;
+    private String name;
 
-    /**
-     * When starting this activity, the invoking Intent can contain this extra
-     * boolean that the header list should not be displayed.  This is most often
-     * used in conjunction with {@link #EXTRA_SHOW_FRAGMENT} to launch
-     * the activity to display a specific fragment that the user has navigated
-     * to.
-     */
-    public static final String EXTRA_NO_HEADERS = ":android:no_headers";
-
-
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener()
+    @Override
+    public void onCreate(Bundle savedState)
     {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value)
-        {
-            String stringValue = value.toString();
+        super.onCreate(savedState);
+        setContentView(R.layout.activity_settings);
 
-            if (preference instanceof ListPreference)
+        loginButton = (LoginButton) findViewById(R.id.login_button);
+        callbackManager = CallbackManager.Factory.create();
+
+        this . setImageDrawable(
+                getDrawable(R.mipmap.ic_launcher)
+        );
+
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+
+            @Override
+            public void onSuccess(LoginResult loginResult)
             {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-
-            } else if (preference instanceof RingtonePreference)
-            {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue))
-                {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
-
-                } else
-                {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null)
+                console . debug_trace(this, "onSuccess");
+                AccessToken token = loginResult.getAccessToken();
+                GraphRequest request = GraphRequest.newMeRequest(token, (json_object, response) -> {
+                    try
                     {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else
-                    {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
+                        console . error(
+                                json_object.toString(2)
+                        );
+
+                        setUserName(json_object.getString("name"));
+
+                        Bundle params = new Bundle();
+                        params.putInt("redirect", 0);
+                        params.putString("type", "normal");
+
+                        new GraphRequest(
+                                token,
+                                "/" + json_object.getString("id") +"/picture",
+                                params,
+                                HttpMethod.GET,
+                                response1 -> {
+                                    try
+                                    {
+                                        JSONObject obj = response1.getJSONObject();
+                                        URL url = new URL(
+                                                obj.getJSONObject("data").getString("url")
+                                        );
+                                        haveImageURLCallback(url);
+                                    }
+                                    catch (NullPointerException|JSONException |MalformedURLException e)
+                                    {
+                                        e . printStackTrace();
+                                    }
+                                }
+                        ).executeAsync();
                     }
+                    catch (JSONException e)
+                    {
+                        e . printStackTrace();
+                    }
+                });
+
+                request . executeAsync();
+
+                console . info("Facebook success");
+            }
+
+            @Override
+            public void onCancel()
+            {
+                console . info("Facebook cancel");
+            }
+
+            @Override
+            public void onError(FacebookException error)
+            {
+                console . info("Facebook error");
+            }
+        });
+
+    }
+
+    public void onSave(View view)
+    {
+        saveStateToPrefs();
+    }
+
+    public void onImageClick(View v)
+    {
+        Intent i = new Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        );
+        i . setType("image/*");
+        startActivityForResult(
+                Intent.createChooser(i, "Select Profile Picture"),
+                PICK_IMAGE
+        );
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK)
+        {
+            return;
+        }
+        if (requestCode == PICK_IMAGE)
+        {
+            if (data != null)
+            {
+                Uri imageUri  = data . getData();
+                if (online_profile_pic != null)
+                {
+                    online_profile_pic = null;
+                }
+                Drawable drawable;
+                try
+                {
+                    InputStream inputStream = getContentResolver().openInputStream(imageUri);
+
+                    drawable = Drawable.createFromStream(inputStream, imageUri.toString() );
+
+                }
+                catch (FileNotFoundException e)
+                {
+                    drawable = getDrawable(R.mipmap.ic_launcher);
                 }
 
-            } else
-            {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
+                this . setImageDrawable(drawable);
+
+                this . profile_pic = imageUri;
             }
-            return true;
         }
-    };
-
-    /**
-     * Helper method to determine if the device has an extra-large screen. For
-     * example, 10" tablets are extra-large.
-     */
-    private static boolean isXLargeTablet(Context context)
-    {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
-    }
-
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference)
-    {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setupActionBar();
-
-    }
-
-    @Override
-    protected boolean isValidFragment(String fragmentName)
-    {
-        return PreferenceActivity.class.getName().equals(fragmentName)
-                || fragmentName.equals(GeneralPreferenceFragment.class.getName());
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar()
-    {
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null)
+        else
         {
-            // Show the Up button in the action bar.
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            callbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item)
+    private void setImageDrawable(Drawable drawable)
     {
-        int id = item.getItemId();
-        if (id == android.R.id.home)
-        {
-            if (!super.onMenuItemSelected(featureId, item))
-            {
-                NavUtils.navigateUpFromSameTask(this);
-            }
-            return true;
-        }
-        return super.onMenuItemSelected(featureId, item);
+        ImageView view = (ImageView) this . findViewById(R.id.profile_pic_chooser);
+        view . setBackground(
+                drawable
+        );
     }
 
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment
+    private String _get_username()
     {
-        @Override
-        public void onCreate(Bundle savedInstanceState)
+        return ((EditText) this . findViewById(R.id.userName)).getText().toString();
+    }
+
+    private void setUserName(String name)
+    {
+        this . name = name;
+        ((EditText) this.findViewById(R.id.userName)).setText(name);
+    }
+
+    private void saveStateToPrefs()
+    {
+        SharedPreferences prefs = getSharedPreferences(
+                getString(R.string.shared_prefs_key),
+                Context.MODE_PRIVATE
+        );
+
+        SharedPreferences.Editor edit = prefs.edit();
+
+        String user_name = _get_username();
+
+        edit.putString(
+                GlobalConstants.userName,
+                user_name
+        );
+
+        String imgURI = this . profile_pic == null ? "null" : this . profile_pic . toString();
+
+        edit . putString(
+                GlobalConstants.imageURI,
+                imgURI
+        );
+
+        String onlineURL = this . online_profile_pic == null ? "null" : this . online_profile_pic . toString();
+
+        edit . putString(
+                GlobalConstants.onlineImageURL,
+                onlineURL
+        );
+
+        edit . commit();
+
+        Toast.makeText(this, "Changes Saved.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void haveImageURLCallback(URL url)
+    {
+        this . online_profile_pic = url;
+        if (this . profile_pic != null)
         {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("difficulty_level"));
+            this . profile_pic = null;
         }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item)
-        {
-            int id = item.getItemId();
-            if (id == android.R.id.home)
-            {
-                NavUtils.navigateUpFromSameTask(getActivity());
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-
+        new DownloadFunction<>(
+                x -> BitmapDrawable.createFromStream(x, "fbPhoto"),
+                this::setImageDrawable
+        ).execute(url);
 
     }
 

@@ -13,6 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +28,7 @@ import database.DatabaseWriteTask;
 import datastructures.CurrentGameDescriptor;
 import datastructures.LocationDescriptor;
 import datastructures.Pair;
+import datastructures.TradeDescriptor;
 import globals.GlobalConstants;
 import tools.Algorithm;
 import tools.DebugMessager;
@@ -259,15 +263,29 @@ public class TradeActivity extends Activity
 
         console . debug_output(fromString);
         Integer available = this.existingWords.get(fromString);
+        Integer toAvailable = this.existingWords.get(toString);
+
+        TradeDescriptor.ActualTrade rate = GlobalConstants.getRate(fromString, toString);
+
+        if (rate == null || toAvailable == null)
+        {
+            throw new IllegalStateException("Illegal state reached in TradeActivity");
+        }
+
 
 
         make_trade.putExtra("from", fromString);
         make_trade.putExtra("to", toString);
         make_trade.putExtra("available", available);
-        make_trade.putExtra("rate", GlobalConstants.getRate(
-                fromString,
-                toString
-        ));
+        make_trade.putExtra("toAvailable", toAvailable);
+        try
+        {
+            make_trade.putExtra("rate", rate.serialise());
+        }
+        catch (JSONException e)
+        {
+            throw new RuntimeException("JSON Exception encountered");
+        }
 
         startActivityForResult(make_trade, 1);
     }
@@ -277,13 +295,20 @@ public class TradeActivity extends Activity
         List<String> keys = new ArrayList<>();
         keys.addAll(this.trades.keySet());
 
+        String[] keys_array = new String[keys.size()];
+
+        for (int i = 0 ; i < keys_array.length; ++i)
+        {
+            keys_array[i] = keys.get(i);
+        }
+
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::haveLocs
         ).execute(
                 db -> db . locationDao() . getTradeWords(
                         this.des.getSongNumber(),
-                        (String[]) keys.toArray()
+                        keys_array
                 )
         );
     }
@@ -293,12 +318,27 @@ public class TradeActivity extends Activity
     {
         if (request == 1)
         {
+            console . info("YES");
             if (Activity.RESULT_OK == resultCode)
             {
+                console . info("YES2");
                 try
                 {
-                    int qtyTraded = data.getExtras().getInt("src_qty");
-                    add_trading_intent(qtyTraded);
+                    if (!data.getExtras().getBoolean("success"))
+                    {
+                        Toast.makeText(
+                                this, "Unsuccesful trade. Please try again",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                    else
+                    {
+                        add_trading_intent(
+                                data.getExtras().getInt("from"),
+                                data.getExtras().getInt("to")
+                        );
+                    }
+
                 }
                 catch (NullPointerException e)
                 {
@@ -309,18 +349,43 @@ public class TradeActivity extends Activity
         }
     }
 
-    private void add_trading_intent(int sourceQuantity)
+    private void add_trading_intent(int from, int to)
     {
-        String from = new String(fromString);
-        String to = new String(toString);
+        console . info("From " + from);
+        console . info("To " + to);
 
-        double conversion_factor = GlobalConstants.getRate(from, to);
-        this.trades.put(from, -1 * sourceQuantity);
-        this.trades.put(from, (int) conversion_factor * sourceQuantity + 1);
+        if (this.trades.get(fromString) == null)
+        {
+            this .trades . put(fromString, -1 * from);
+        }
+        else
+        {
+            this . trades . put(
+                    fromString,
+                    this . trades . get(fromString) - from
+            );
+        }
+
+        if (this.trades.get(toString) == null)
+        {
+            this .trades . put(toString, to);
+        }
+        else
+        {
+            this . trades . put(
+                    toString,
+                    this . trades . get(toString) + to
+            );
+        }
+
     }
 
     public void updateInformation()
     {
+        if (this . trades != null)
+        {
+            this . trades . clear();
+        }
         new DatabaseReadTask<>(
                 AppDatabase.getAppDatabase(this),
                 this::_init_vars
@@ -333,11 +398,14 @@ public class TradeActivity extends Activity
 
     public void haveLocs(List<LocationDescriptor> locs)
     {
-        Map<String, List<LocationDescriptor>> groupedLocs = Algorithm.groupBy(
+        Map<String, List<LocationDescriptor>> groupedLocs = Algorithm.Collections.groupBy(
                 locs,
                 LocationDescriptor::getCategory,
                 x -> x
         );
+
+        console . debug_output_json(locs);
+        console . debug_map(this.trades);
 
         List<LocationDescriptor> toUpdate = new ArrayList<>();
 
